@@ -81,7 +81,11 @@ const {mapState,mapMutations} =require('vuex')
                 activate_name:'1-1'
             }
         },
-        mounted(){
+        created(){
+            let reg = /\/home\/?/
+            if(reg.test(this.$route.path)){
+                this.change('1-1')
+            }
         },
         methods:{
             logout(){

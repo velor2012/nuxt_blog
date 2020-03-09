@@ -33,10 +33,10 @@ post {{url}}/login
 }
 
 ###
-get {{url}}/article/all_type
+get {{url}}/article
 
 ###
-get {{url}}/article/complex?date=2020-3
+get {{url}}/article/complex?keyword=测试&page=1&pageSize=10
 
 ###
 get {{url}}/article/pageSize=20&page=1

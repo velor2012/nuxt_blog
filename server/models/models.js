@@ -23,15 +23,14 @@ const User = mongoose.model('User',new mongoose.Schema({
     // email:{type:String},
     // other:{type:String}
 }))
-let article_schema = new mongoose.Schema({
+
+const Article = mongoose.model('Article',new mongoose.Schema({
     title : {type:String,unique:true,required:true},
     content : {type:String,required:true},
     createTime:{type:Date},
     updateTime:{type:Date},
     type:{type:String,required:true}
-})
-article_schema.index({'$**': 'text'});
-const Article = mongoose.model('Article',article_schema)
+}))
 
 const Draft = mongoose.model('Draft',new mongoose.Schema({
     title : {type:String,unique:true,required:true},

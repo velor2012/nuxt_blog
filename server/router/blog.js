@@ -58,6 +58,7 @@ let count =  0
 router.get('/article/complex',async(req,res)=>{
     let query_date = {}
     let query_type = {}
+    let query_search = {}
     let pageSize = 1
     let page = 1
     //是否需要返回符合条件的文章数
@@ -67,6 +68,16 @@ router.get('/article/complex',async(req,res)=>{
         let date = new Date(new moment(new Date(req.query.date)))
         let date2 = new Date(new moment(new Date(req.query.date)).add(1, 'M'))
         query_date = {createTime: {$gte: date,$lt: date2}}
+    }
+    if(req.query.keyword){
+        let keyword = req.query.keyword
+        query_search = {
+            $or:[
+                {title: new RegExp(`${keyword}`,'i')},
+                {type: new RegExp(`${keyword}`,'i')},
+                {content: new RegExp(`${keyword}`,'i')},
+            ]
+        }
     }
     if(req.query.type && req.query.type != 'total'){
         query_type = {type:req.query.type}
@@ -78,7 +89,8 @@ router.get('/article/complex',async(req,res)=>{
     if(req.query.need_total){
         need_total = true
     }
-    let query = {...query_date,...query_type}
+    let query = {...query_date,...query_type,...query_search}
+    // console.log('query %O',query)
     try{
         // console.log('query %O',query)
         // console.log('pageSize %O',pageSize)
