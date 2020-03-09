@@ -1,3 +1,6 @@
+export const state = () => ({
+    types:[]
+  })
 export const actions = {
     async nuxtServerInit ({ commit }, { app,req }) {
         let str = String(req.headers.cookie)
@@ -28,7 +31,15 @@ export const mutations = {
     setUserName(state,name){
         state.login.username = name
     },
+    setTypes(state,types){
+        state.types = types
+    },
     _login(state){
         state.login.is_login = true
     },
+}
+export const getters = {
+    getTypes(state){
+        return state.types
+    }
 }

@@ -78,8 +78,14 @@ const {mapState,mapMutations} =require('vuex')
     export default {
         data(){
             return{
-                activate_name:'1-1'
+                activate_name:'1-1',
+                get_types_url:'api/article/types'
             }
+        },
+        mounted(){
+            this.$axios.get(this.get_types_url).then(res=>{
+                this.$store.commit('setTypes',res.data.other.types)
+            })
         },
         created(){
             let reg = /\/home\/?/

@@ -6,6 +6,7 @@ const express = require('express')
 const router = express.Router()
 
 const {auth,jwt,getMessageAndSend} = require('../util/util')
+const config = require('../config.json')
 const toc = require('markdown-toc');
 const moment = require('moment');
 
@@ -25,7 +26,6 @@ router.get('/article',async(req,res)=>{
     getMessageAndSend(true,'',{article:article},res)
 })
 router.get('/article/title=:title',async(req,res)=>{
-
     const article = await Article.findOne({title:req.params.title})
     if(article!=null){
         getMessageAndSend(true,'',{find:true,article:article},res)
@@ -42,10 +42,9 @@ router.get('/article/html/id=:id',async(req,res)=>{
     let con = toc(article.content).content;
     getMessageAndSend(true,'',{article:article,con:con},res)
 })
-router.get('/article/toc',async(req,res)=>{
-    console.log(req.query)
-    let con = toc('req.query.article.content').content;
-    getMessageAndSend(true,'',{con:con},res)
+//获取文章的类型设置信息
+router.get('/article/types',async(req,res)=>{
+    getMessageAndSend(true,'',{types:config.types},res)
 })
 router.get('/article/all_type',async(req,res)=>{
     const agg = await Article.aggregate([{$group:{

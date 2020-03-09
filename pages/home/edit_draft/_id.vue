@@ -56,7 +56,6 @@ export default {
             fullscreen:false,
         },
         id:'',
-        types:['前端开发','后端开发','论文阅读'],
         toc:{'1':[''],'2':[''],'3':['']},
         selection:selection,
     }
@@ -181,6 +180,11 @@ export default {
         }
         
     },
+    computed:{
+        types(){
+            return this.$store.getters.getTypes
+        }
+    }
 }
 </script>
 <style lang="less">

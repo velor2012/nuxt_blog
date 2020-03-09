@@ -1,12 +1,13 @@
 {
     "SECRET": "dsaifuheowingpvfdkzsop",
     "env_url": "http://127.0.0.1:4001",
-    "prod_url":"http://awsl.vipgz1.idcfengye.com",
+    "prod_url":"http://www.velor2012.xyz:4001",
     "mogoose_config":{
         "user":"velor2012",
         "password":"lease2012",
         "address":"49.232.32.14",
         "host":"27017",
         "db":"express_test"
-    }
+    },
+    "types":["前端开发","后端开发","论文阅读"]
 }

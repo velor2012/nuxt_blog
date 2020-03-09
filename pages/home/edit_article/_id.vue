@@ -44,7 +44,6 @@ export default {
         subfield:false,
         auto_save:true,
         toc:[],
-        types:['前端开发','后端开发','论文阅读'],
         article:{title:'',content:'',type:''},//不能设置为null，比较奇怪
         old_article:{title:'',content:'',type:''},
         toolbars:{
@@ -162,6 +161,11 @@ export default {
             })
         }
     },
+    computed:{
+        types(){
+            return this.$store.getters.getTypes
+        }
+    }
 }
 </script>
 <style lang="less">

@@ -45,7 +45,6 @@ export default {
             auto_save:true,
             article:{title:'',content:'',type:''},
             old_article:{title:'',content:'',type:''},
-            types:['前端开发','后端开发','论文阅读'],
             toc:[],
             toolbars:{
                 save:true,
@@ -147,6 +146,11 @@ export default {
     },
     created(){
     },
+    computed:{
+        types(){
+            return this.$store.getters.getTypes
+        }
+    }
 }
 </script>
 <style lang="less">
