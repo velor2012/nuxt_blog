@@ -1,0 +1,85 @@
+@url = http://localhost:4001/api
+@json = Content-Type: application/json
+###
+get {{url}}/user/base_info/id=5e25a3af727cf66e10558c4d
+
+###
+post https://api.github.com/markdown
+{{json}}
+
+{
+  "text": "Hello world github/linguist#1 **cool**, and #1!",
+  "mode": "gfm",
+  "context": "github/gollum"
+}
+
+###
+post {{url}}/user
+{{json}}
+
+{
+    "username":"velor2012",
+    "password":"123456",
+    "info":""
+}
+
+###
+post {{url}}/login
+{{json}}
+
+{
+    "username":"velor202",
+    "password":"123456"
+}
+
+###
+get {{url}}/article/all_type
+
+###
+get {{url}}/article/complex?date=2020-3
+
+###
+get {{url}}/article/pageSize=20&page=1
+
+###
+delete {{url}}/image/emoji
+{{json}}
+
+{
+    "name":"1e33fb20-5c9f-11ea-b28b-79a4de4823b2.png"
+}
+
+###
+post {{url}}/article
+{{json}}
+
+{
+    "title":"测试3",
+    "content":"测试文章",
+    "type":"node"
+}
+
+###
+post {{url}}/draft
+{{json}}
+
+{
+    "title":"测试7",
+    "content":"测试文章",
+    "type":"node",
+    "ispublished":false
+}
+###
+
+###
+get {{url}}/draft/total
+
+
+put {{url}}/article/id=5e36f9977b3a6d4b1071cf1e
+{{json}}
+
+{
+    "title":"测试3",
+    "content":"2659",
+    "type":"Back"
+}

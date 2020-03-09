@@ -1,0 +1,123 @@
+<h1>开发记录</h1>
+<ul>
+<li><a href="#%E9%83%A8%E7%BD%B2%E9%97%AE%E9%A2%98">部署问题</a></li>
+</ul>
+<h2>server配置</h2>
+<p>1.先在nuxt.config.js中添加server项，代码为</p>
+<pre><code class="language-js">  server:{
+    host:'localhost',
+    port:4001
+  }
+</code></pre>
+<p>然后在server/index.js中声明router,添加router.get之类的处理请求的函数然后app.use(’/’,router)即可</p>
+<p>2.跨域配置，直接安装cors,然后让express require,use一下就好了,代码在server/index.js中<br>
+3.安装iview-design,然后在plugins目录下新建iview.js，调用iView对象，再在nuxt.config.js中</p>
+<pre><code class="language-js">  css: [
+    'view-design/dist/styles/iview.css'
+  ],
+  /*
+  ** Plugins to load before mounting the App
+  */
+  plugins: [
+    '@/plugins/iview',
+    '@/plugins/vue_cookie'
+  ],
+</code></pre>
+<ol start="4">
+<li></li>
+</ol>
+<pre><code class="language-js">npm i @nuxtjs/axios
+</code></pre>
+<p>安装axios，然后在nuxt.config.js(以后直接说配置文件)中修改</p>
+<pre><code class="language-js"> modules: [
+    '@nuxtjs/axios'
+  ],
+</code></pre>
+<h2>登录</h2>
+<p>1.安装vue cookie来保存token,服务端用bcrypt来生成token，使用保存在本地密钥config.json种的SECRET，读取json直接用require就行了,我在安装bcrypt的时候会报错，大概是需要安装visual studio的C++支持，然后上网安装vs就好了</p>
+<p>2.安装vuex,在store目录下新建index.js来引用vuex,具体方法参照<br>
+<a href="https://blog.csdn.net/qq_42120178/article/details/102886123">这里</a></p>
+<p>3.登录的基本逻辑为，前端将账号密码传到服务器，服务器确认后返还token，客户端用cookie和vuex保存token，然后跳转到登陆后的页面。注意在登陆页面加载前判断token和username是否存在，即:页面预加载=&gt;判断token,username是否存在而且登陆状态是否是true=&gt;没有问题，则直接进入登陆后的页面。这里设置了一个拦截器，当登陆成功，得到token之后，以后的每个axios请求都会自动在请求头带上token。</p>
+<p>4.路由拦截,防止未登陆的用户浏览需要登陆的页面，服务器则用token进行校验即可。plugins下新建一个js文件夹，判断用户是否登录，未登录则重定向到登陆页面，代码如下</p>
+<pre><code class="language-js">export default ({ app,store,redirect}) =&gt; {
+    app.router.afterEach((to, from) =&gt; {
+        let is_login = store.state.login.is_login
+        console.log(store.state.login.is_login)
+        if (!is_login &amp;&amp; to.path !== '/login') {
+            redirect('/login');
+        }
+    });
+  };
+</code></pre>
+<p>其中变量is_login保存在你的vuex里面，具体位置需要自己指明。这里需要修改一下配置文件</p>
+<pre><code class="language-js">  plugins: [
+    '@/plugins/iview',
+    '@/plugins/vue_cookie',
+    '@/plugins/axios',
+    {src:'@/plugins/router',ssr: false}
+  ],
+</code></pre>
+<p>ssr改成false配合下面状态持久化</p>
+<p>5.状态持久化，使用nuxtServerInit方法，官方api<a href="https://zh.nuxtjs.org/guide/vuex-store/">在此</a>,在store目录下新建index.js，当然如果之前已经有就不用新建了，添加如下内容</p>
+<pre><code class="language-js">export const actions = {
+    async nuxtServerInit ({ commit }, { app,req }) {
+        let str = String(req.headers.cookie)
+        let reg = /token=(\S+)/;
+        let match1 = str.match(reg)
+        let reg2 = /username=(\S+)/;
+        let match2 = str.match(reg2)
+        let username = NaN
+        let token =NaN
+        if(match1 &amp;&amp; match1.length&gt;1){
+            token = match1[1]
+        }
+
+        if(match2 &amp;&amp; match2.length&gt;1){
+            username = match2[1]
+        }
+        if(token &amp;&amp; username){
+            commit('setToken',token)
+            commit('setUserName',username)
+            await commit('_login',true)
+        }
+    }
+}
+export const mutations = {
+    setToken(state,token){
+        state.login.token = token
+    },
+    setUserName(state,name){
+        state.login.username = name
+    },
+    _login(state){
+        state.login.is_login = true
+    },
+}
+</code></pre>
+<p>这个函数主要是在页面刷新的时候触发，把cookie中的信息重新拷贝到vuex里面。所以页面刷新时会触发以下事件，nuxtServerInit=&gt;beforEach，这样以来登陆状态可以在路由器鉴权之前恢复。如果前面没有吧router设置成ssr:false,会导致router在服务器先渲染了，事件顺序就变成beforEach=&gt;nuxtServerInit。不仅如此，如果在服务端渲染，那么就不会存在window，vue等实例，在beforEach里面甚至获取不到cookie…这个bug花了好久时间才整明白</p>
+<h2>博客管理</h2>
+<p>1.使用iview的基本布局，上中下左的那个，然后为了实现点击一下左侧的menuitem，中间的子页面切换的效果，在pages文件夹下新建home.vue来作为父页面，新建home文件夹，里面放表格和其他的子页面，在父页面对应位置使用<code>&lt;nuxt-child&gt;</code>标签，menuitem处使用<code>&lt;nuxt-link&gt;</code>指向<code>/home/child</code>即可，这里home前面的/一定要加，不然重复点击会有问题<br>
+2.基本布局弄好后，开始写article table相关的代码，article对象现在只考虑 title,content,createTime,updateTime,type五个属性，两个时间类型都是时间戳，因此我们之后需要转换一下<br>
+3.安装文本编辑器，我使用的是mavon-editor,官方api<a href="https://github.com/hinesboy/mavonEditor">在这</a>，照着官方的方法安装，然后再新建子页面add_article，然后就可以开始写添加文章的代码了,首先完成输入的绑定，绑定到articl对象中，然后绑定提交按钮到完成递交的函数publish,测试没问题后就完成了基本的添加操作。后面还需要检验一下输入的有效性(标题重复，输入为空，字数限制等)，返回成功与否的消息<br>
+4.文章的修改与删除<br>
+修改文章页面和添加文章的页面基本一致，但是进去默认输入框什么的是禁用的，需要点击编辑按钮，所以，其实是浏览页面和编辑页面混合起来了，进入这个页面需要在上一个页面传article对象进来，所以路由器要先拦截判断一下有没有这个参数，然后浏览页面获取参数然后绑定在自己的article对象上。点击编辑按钮会把原本不可编辑的输入框和mavon控件变成可编辑，同时出现修改按钮。删除文章时先从数据库删除文章，然后删除前端列表中对应的文章。<br>
+5.图片上传<br>
+使用mavonEditor的图片上传函数，把图片文件上传至后台,后台使用uuid生成唯一的文件名，接受文件使用的是multer，注意将文件放到static下的blogimg，这样就可以当做静态资源直接访问。我这里是前端一张张图片上传，后台也一张张图片接收，当然也可以一次上传接收多张图片，自己对照mavonEditor的api以及multer的api修改代码即可<br>
+6.草稿箱<br>
+创建新表draft,字段为title,content,type,ispublished。服务端新建draft.js，内容基本与blog.js一样，然后前端添加草稿箱页面，仿照articleTable页面写就好了。草稿功能思路如下图<img src="https://s2.ax1x.com/2020/02/29/3yOrC9.png" alt="avatar">,编辑草稿之前的路由拦截.<br>
+7.完善<br>
+(1)各种输入有效性检查(长度限制，禁止特殊字符等),发布或者修改文章，草稿的时候进行检查即可,参考tool.js里的各种check函数,特殊字符的检查比较麻烦，暂不实现<br>
+(2)完成图片删除功能,mavonEditor虽然有图片删除时间，但是我找了半天没找到mavonEditor是怎么触发图片删除事件的,似乎也没有删除图片的按钮之类的,直接删除代码也不会触发该事件,暂时无法实现该功能。<br>
+(3)删除提醒,出错提醒.删除提醒使用iview的modal一次性组件，出错提醒使用notice,二者的调用均封装在message.js中<br>
+(4)切换页面时提醒保存，使用两个变量保存当前和历史的article，draft对象,不一致时提醒保存,离开页面提醒的功能参考该<a href="https://segmentfault.com/q/1010000015948663">网址</a>,注意这个函数是写在组件里面(edit_draft.vue…)而非路由配置文件里。这里有个小bug，点左侧菜单切换页面时候，如果提醒为保存，选择不离开，激活的item还是会改变,导致激活的item与页面不对应的情况.如图<img src="https://s2.ax1x.com/2020/03/01/3cTmBF.png" alt="avatar"><br>
+(5)自动保存.设置定时器,1分钟检查一次,如果有改变就调用保存的函数<br>
+(6)后台权限验证。主要目的是防止服务器响应其他没有权限的用户发起的请求.实现方法分两步<br>
+1.写一个中间件,获取前端传过来的请求，把token提取出来校验，token有效就放行,无效就直接返回自己设置的结果。<br>
+2.作为中间件加入到需要验证权限的请求处理函数中，中间件原理<a href="https://www.jianshu.com/p/797a4e38fe77">这篇文章</a>讲的比较简单而且清楚了,具体实现与知乎<a href="https://zhuanlan.zhihu.com/p/98742302">这篇文章</a>相近,权限验证中间件代码在server/util里.<br>
+(7)各种过渡,加载等待啥的.<a href="https://blog.csdn.net/nongweiyilady/article/details/79002263">过渡动画</a></p>
+<h2>服务器状态</h2>
+<p>主要使用os包，内容参考github上一位大佬的代码</p>
+<h2>部署问题</h2>
+<p>1.webpack打包时module.exports出问题，比较玄学，网上说是因为module.exports和import不能一起用，但是我把代码中import的代码都改成required也没用，组后把tool.js的module.exports改成了export,把tool.js导入nuxt.config.js那段寻找baseurl的代码删掉，直接用process.env.BASE_URL才解决。<br>
+2.放到服务器一定要把baseurl的值改为服务器地址，不能用localhost或者127.0.0.1</p>
+<h2>版本内容</h2>

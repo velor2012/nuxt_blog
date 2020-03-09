@@ -1,0 +1,12 @@
+{
+    "SECRET": "dsaifuheowingpvfdkzsop",
+    "env_url": "http://127.0.0.1:4001",
+    "prod_url":"http://awsl.vipgz1.idcfengye.com",
+    "mogoose_config":{
+        "user":"velor2012",
+        "password":"lease2012",
+        "address":"49.232.32.14",
+        "host":"27017",
+        "db":"express_test"
+    }
+}
