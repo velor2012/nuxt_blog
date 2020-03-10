@@ -3,8 +3,8 @@
     "env_url": "http://127.0.0.1:4001",
     "prod_url":"http://www.velor2012.xyz:4001",
     "mogoose_config":{
-        "user":"velor2012",
-        "password":"lease2012",
+        "user":"xxx",
+        "password":"xxx",
         "address":"0.0.0.0",
         "host":"27017",
         "db":"express_test"
