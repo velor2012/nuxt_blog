@@ -61,10 +61,10 @@ module.exports = {
     extend (config, ctx) {
     },
     // 开启打包分析
-    // analyze: true, 	
-    // assetFilter: function(assetFilename) {	    		
-    //   return assetFilename.endsWith('.js');	    	
-    // },
+    analyze: true, 	
+    assetFilter: function(assetFilename) {	    		
+      return assetFilename.endsWith('.js');	    	
+    },
     optimization: {},
     /**
      * 打包独立css文件

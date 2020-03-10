@@ -9,7 +9,7 @@ var path = require('path')
 var UUID = require('uuid')
 const {getMessageAndSend} = require('../util/util')
 //设置保存规则
-var storage_blog = multer.diskStorage({
+let storage_blog = multer.diskStorage({
     //destination：字段设置上传路径，可以为函数
     // destination: path.resolve(__dirname, '/'),
     destination:'static/blogimg',
@@ -21,7 +21,7 @@ var storage_blog = multer.diskStorage({
     }
 })
 
-var upload_blog = multer({storage: storage_blog,dest: '.'}).single('file');
+let upload_blog = multer({storage: storage_blog,dest: '.'}).single('file');
 
 router.post('/upload/blog',auth, (req, res)=>{
 
@@ -38,7 +38,7 @@ router.post('/upload/blog',auth, (req, res)=>{
 //上传到表情包文件夹
 
 //设置保存规则
-var storage_blog = multer.diskStorage({
+let storage_emoji = multer.diskStorage({
     //destination：字段设置上传路径，可以为函数
     // destination: path.resolve(__dirname, '/'),
     destination:'static/emoji',
@@ -50,11 +50,11 @@ var storage_blog = multer.diskStorage({
     }
 })
 
-var upload_blog = multer({storage: storage_blog,dest: '.'}).single('file');
+let upload_blog_emoji = multer({storage: storage_emoji,dest: '.'}).single('file');
 
 router.post('/upload/emoji',auth, (req, res)=>{
 
-    upload_blog(req,res,(err)=>{
+    upload_blog_emoji(req,res,(err)=>{
         if(err){//上传时发生错误
             getMessageAndSend(false,'err',{error:err},res)
         }else{
