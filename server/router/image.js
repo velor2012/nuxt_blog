@@ -13,7 +13,7 @@ router.get('/image/emoji', (req, res)=>{
     })
     getMessageAndSend(true,'',{result:result_slim},res)
 })
-router.delete('/image/emoji', (req, res)=>{
+router.delete('/image/emoji',auth, (req, res)=>{
     let name = req.body.name
     let path = `static/emoji/${name}`
     let result = deleteFile(path)

@@ -116,7 +116,7 @@ import loading from '~/components/loading.vue'
                     if(res.data.success){
                         message.success(this,true,'删除成功')
                     }else{
-                        message.success(this,true,'删除失败')
+                        message.error(this,true,'删除失败',res.data.reason)
                     }
                 })
                 // 从列表中删除文章

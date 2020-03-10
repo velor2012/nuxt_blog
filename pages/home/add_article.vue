@@ -70,7 +70,7 @@ export default {
                             message.success(this,true,'发布成功')
                             this.update_old_article()
                         }else{
-                            message.success(this,true,'发布失败',res.data.reason)
+                            message.error(this,true,'发布失败',res.data.reason)
                         }
                     })
                 }else{return false}

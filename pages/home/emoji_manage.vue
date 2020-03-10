@@ -83,7 +83,7 @@ const {message} =require('../message')
                         this.refresh()
                         message.success(this,true,'删除成功')
                     }else{
-                        message.error(this,true,'获取表情失败',res.data.reason) 
+                        message.error(this,true,'删除表情失败',res.data.reason) 
                     }
                 })
             },

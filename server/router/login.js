@@ -9,7 +9,8 @@ const {auth,jwt,getMessageAndSend} = require('../util/util')
 let config = require('../config.json')
 SECRET = config.SECRET
 
-router.post('/register',async(req,res)=>{
+//添加auth，禁止其他人注册
+router.post('/register',auth,async(req,res)=>{
     const u = await User.findOne({username:req.body.username})
     if(u!=null){
         getMessageAndSend(false,'username duplicate',{},res)

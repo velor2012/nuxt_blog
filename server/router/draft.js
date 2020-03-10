@@ -8,26 +8,26 @@ const router = express.Router()
 const {auth,jwt,getMessageAndSend} = require('../util/util')
 
 
-router.get('/draft/pageSize=:pageSize&page=:page',auth,async(req,res)=>{
+router.get('/draft/pageSize=:pageSize&page=:page',async(req,res)=>{
     let pageSize = Number(req.params.pageSize)
     let page = Number(req.params.page)
     // page从1开始，所以需要减1
     const draft = await Draft.find({},{'content':0}).limit(pageSize).skip(pageSize*(page-1))
     getMessageAndSend(true,'',{draft:draft},res)
 })
-router.get('/draft/total',auth,async(req,res)=>{
+router.get('/draft/total',async(req,res)=>{
     const total = await Draft.find({},{'content':0}).countDocuments()
     getMessageAndSend(true,'',{total:total},res) 
 })
-router.get('/draft',auth,async(req,res)=>{
+router.get('/draft',async(req,res)=>{
     const draft = await Draft.find()
     getMessageAndSend(true,'',{draft:draft},res) 
 })
-router.get('/draft/id=:id',auth,async(req,res)=>{
+router.get('/draft/id=:id',async(req,res)=>{
     const draft = await Draft.findById(req.params.id)
     getMessageAndSend(true,'',{draft:draft},res)
 })
-router.get('/draft/title=:title',auth,async(req,res)=>{
+router.get('/draft/title=:title',async(req,res)=>{
     const draft = await Draft.findOne({title:req.params.title})
     if(draft!=null){
         getMessageAndSend(true,'',{find:true,draft:draft},res)
