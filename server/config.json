@@ -5,7 +5,7 @@
     "mogoose_config":{
         "user":"velor2012",
         "password":"lease2012",
-        "address":"49.232.32.14",
+        "address":"0.0.0.0",
         "host":"27017",
         "db":"express_test"
     },
