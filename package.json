@@ -13,7 +13,8 @@
   "dependencies": {
     "@nuxtjs/axios": "^5.9.4",
     "axios": "^0.19.2",
-    "bcrypt": "^3.0.7",
+    "babel-polyfill": "^6.26.0",
+    "bcrypt": "^4.0.1",
     "clipboard": "^2.0.5",
     "cors": "^2.8.5",
     "cross-env": "^5.2.0",

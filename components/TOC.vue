@@ -2,8 +2,9 @@
 <Card>
     <p slot="title" style="fontWeight:bold">
         目录
-    </p>
-    <Anchor show-ink>
+    </p> 
+    <div>
+    <Anchor show-ink >
         <AnchorLink            
         href="#header"
         title="返回顶部"
@@ -15,6 +16,8 @@
         :title="getText(item.layer,item.text)"
         />
     </Anchor>
+    </div>
+
 </Card>
 </template>
 <script>

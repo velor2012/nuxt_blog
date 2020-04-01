@@ -27,6 +27,9 @@ const User = mongoose.model('User',new mongoose.Schema({
 const Article = mongoose.model('Article',new mongoose.Schema({
     title : {type:String,unique:true,required:true},
     content : {type:String,required:true},
+    cover:{type:String,required:true},
+    tag:{type:String,required:true},
+    resume:{type:String,required:true},
     createTime:{type:Date},
     updateTime:{type:Date},
     type:{type:String,required:true}
@@ -36,6 +39,9 @@ const Draft = mongoose.model('Draft',new mongoose.Schema({
     title : {type:String,unique:true,required:true},
     content : {type:String,required:true},
     type:{type:String,required:true},
+    cover:{type:String,required:true},
+    tag:{type:String,required:true},
+    resume:{type:String,required:true},
     createTime:{type:Date},
     updateTime:{type:Date},
     ispublished:{type:Boolean}

@@ -1,5 +1,6 @@
 export const state = () => ({
-    types:[]
+    types:[],
+    colors:[],
   })
 export const actions = {
     async nuxtServerInit ({ commit }, { app,req }) {
@@ -37,9 +38,15 @@ export const mutations = {
     _login(state){
         state.login.is_login = true
     },
+    setColors(state,colors){
+        state.colors = colors
+    }
 }
 export const getters = {
     getTypes(state){
         return state.types
+    },
+    getColors(state){
+        return state.colors
     }
 }

@@ -1,7 +1,7 @@
 <template>
     <Affix :offset-top="50">
         <span class="demo-affix"> 
-            <Poptip placement="bottom" width="800">
+            <Poptip placement="bottom"  width="600">
                 <Button shape="circle" type="warning" size="large" style="fontWeight:bold">插入表情</Button>
                 <div slot="content">
                     <Row>

@@ -3,11 +3,11 @@
     "env_url": "http://127.0.0.1:4001",
     "prod_url":"http://www.velor2012.xyz:4001",
     "mogoose_config":{
-        "user":"xxx",
-        "password":"xxx",
-        "address":"0.0.0.0",
+        "user":"velor2012",
+        "password":"lease2012",
+        "address":"121.36.165.90",
         "host":"27017",
-        "db":"express_test"
+        "db":"velor2012_blog"
     },
-    "types":["前端开发","后端开发","论文阅读"]
+    "types":["前端开发","后端开发","论文阅读","其他"]
 }
