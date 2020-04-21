@@ -1,0 +1,18 @@
+{
+    "github":{
+        "user":"xxx",
+        "repo":"your repository",
+        "token":"your token"
+    },
+    "SECRET": "a key you defined but shouldn't show to others",
+    "env_url": "https://127.0.0.1:8848",
+    "prod_url":"https://127.0.0.1:8848",
+    "mogoose_config":{
+        "user":"xxx",
+        "password":"xxx",
+        "address":"xxx.xxx.xxx.xxx",
+        "host":"27017",
+        "db":"xx"
+    },
+    "types":["前端开发","后端开发","论文阅读","其他"]
+}

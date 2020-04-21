@@ -1,0 +1,111 @@
+@url = http://localhost:4001/api
+@json = Content-Type: application/json
+###
+get {{url}}/user/base_info/id=5e25a3af727cf66e10558c4d
+
+###
+get https://api.github.com/repos/velor2012/imageHosting/contents/emoji
+Authorization: token 8d620fea1deeac0e5141f5ae2bc58a17690403d2
+
+###
+DELETE  https://api.github.com/repos/velor2012/imageHosting/contents/blog/5e86e1441c84719816a530f0/cover
+{{json}}
+Authorization: token 8d620fea1deeac0e5141f5ae2bc58a17690403d2
+
+{
+    "message":"test",
+    "sha": "0feb631c04bf650692b6a7c710bc021ba939f7fd",
+}
+
+
+###
+post https://api.imgbb.com/1/upload
+{{json}}
+
+{
+    "key":"999b87be45257dbed034a08e88d9e82e",
+    "image":"https://i.loli.net/2020/04/03/HbUjxBElPocvKuz.jpg"
+}
+###
+post https://images.ac.cn/api/upload
+{{json}}
+
+{
+  "token":"d08095e862fbf95bbb6423d5065c",
+  "image":{
+      "file":"https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1585860917027&di=51276283904120ed8cfb2b43a68c40b4&imgtype=0&src=http%3A%2F%2Fa3.att.hudong.com%2F14%2F75%2F01300000164186121366756803686.jpg",
+  },
+
+  "privateStorage":"ftp"
+}
+
+###
+post {{url}}/user
+{{json}}
+
+{
+    "username":"velor2012",
+    "password":"lease2012",
+    "info":""
+}
+
+###
+post {{url}}/login
+{{json}}
+
+{
+    "username":"velor202",
+    "password":"123456"
+}
+
+###
+get {{url}}/article
+
+###
+get {{url}}/article/complex?keyword=测试&page=1&pageSize=10
+
+###
+get {{url}}/article/pageSize=20&page=1
+
+###
+delete {{url}}/image/emoji
+{{json}}
+
+{
+    "name":"1e33fb20-5c9f-11ea-b28b-79a4de4823b2.png"
+}
+
+###
+post {{url}}/article
+{{json}}
+
+{
+    "title":"测试3",
+    "content":"测试文章",
+    "type":"node"
+}
+
+###
+post {{url}}/draft
+{{json}}
+
+{
+    "title":"测试7",
+    "content":"测试文章",
+    "type":"node",
+    "ispublished":false
+}
+###
+
+###
+get {{url}}/draft/total
+
+
+put {{url}}/article/id=5e36f9977b3a6d4b1071cf1e
+{{json}}
+
+{
+    "title":"测试3",
+    "content":"2659",
+    "type":"Back"
+}
