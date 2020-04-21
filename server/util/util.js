@@ -3,31 +3,6 @@ let git_config = require('../config.json').github
 const jwt = require("jsonwebtoken");
 const request = require("request")
 const config = require("../config.json");
-const { Octokit } = require("@octokit/rest");
-const MyOctokit = Octokit.plugin(require("@octokit/plugin-throttling"),require("@octokit/plugin-retry"));
-const octokit = new Octokit({
-  auth:git_config.token,
-  baseUrl: 'https://api.github.com',
-  throttle: {
-    onRateLimit: (retryAfter, options) => {
-      octokit.log.warn(
-        `Request quota exhausted for request ${options.method} ${options.url}`
-      );
-
-      if (options.request.retryCount === 0) {
-        // only retries once
-        console.log(`Retrying after ${retryAfter} seconds!`);
-        return true;
-      }
-    },
-    onAbuseLimit: (retryAfter, options) => {
-      // does not retry, only logs a warning
-      octokit.log.warn(
-        `Abuse detected for request ${options.method} ${options.url}`
-      );
-    }
-  }
-})
 SECRET = config.SECRET;
 
 const auth =  (req, res, next) => {
@@ -130,4 +105,4 @@ const deleteArticleAllImage = async function(id,url){
   return 'ok'
 }
 
-module.exports = { auth, jwt, getMessageAndSend, getAllFiles, deleteFile,deleteArticleAllImage,octokit };
+module.exports = { auth, jwt, getMessageAndSend, getAllFiles, deleteFile,deleteArticleAllImage };

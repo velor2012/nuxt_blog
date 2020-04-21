@@ -2,7 +2,8 @@
     "github":{
         "user":"xxx",
         "repo":"your repository",
-        "token":"your token"
+        "token":"your token",
+        "proxy":"http://127.0.0.1:7890"
     },
     "SECRET": "a key you defined but shouldn't show to others",
     "env_url": "https://127.0.0.1:8848",
