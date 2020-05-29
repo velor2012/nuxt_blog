@@ -1,0 +1,32 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "My cool Nuxt.js project",
+  "author": "velor2012",
+  "private": true,
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development nuxt-ts",
+    "build": "nuxt-ts build",
+    "start": "cross-env NODE_ENV=production nuxt-ts start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@nuxt/typescript-runtime": "^0.4.0",
+    "@nuxtjs/auth-next": "^5.0.0-1590092757.1671dba",
+    "@nuxtjs/axios": "^5.3.6",
+    "@nuxtjs/dotenv": "^1.4.0",
+    "cross-env": "^5.2.0",
+    "dayjs": "^1.8.27",
+    "element-ui": "^2.4.11",
+    "lodash": "^4.17.15",
+    "node-sass": "^4.14.1",
+    "nuxt": "^2.0.0",
+    "nuxt-property-decorator": "^2.7.2",
+    "sass": "^1.26.5",
+    "sass-loader": "^8.0.2",
+    "vditor": "3.2.10"
+  },
+  "devDependencies": {
+    "@nuxt/typescript-build": "^0.6.0"
+  }
+}

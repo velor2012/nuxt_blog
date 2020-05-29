@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+      "target": "esnext",
+      "module": "esnext",
+      "moduleResolution": "node",
+      "lib": [
+        "esnext",
+        "esnext.asynciterable",
+        "dom"
+      ],
+      "esModuleInterop": true,
+      "experimentalDecorators": true,
+      "sourceMap": true,
+      "strict": false,
+      "allowSyntheticDefaultImports": true,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "baseUrl": ".",
+      "resolveJsonModule": true,
+      "paths": {
+        "~/*": ["./*"],
+        "@/*": ["./*"],
+      },
+      "types": [
+        "@nuxt/types",
+        "@nuxtjs/axios/types",
+        "element-ui/types"
+      ]
+    },
+  }
+    
