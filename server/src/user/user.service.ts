@@ -1,14 +1,15 @@
-import { Injectable, Inject } from "@nestjs/common";
+import { Injectable, Inject, Logger } from "@nestjs/common";
 import { InjectModel } from "nestjs-typegoose";
 import { ReturnModelType } from "@typegoose/typegoose";
 import User from "./user.model";
-import * as fs from 'fs'
-import { v1 as uuidv1 } from 'uuid';
 import { ImgUploadService } from '../lib/common/uploadImg.service';
 import imgUploadParam, { imgType } from "src/lib/types/imgParam";
 import { CacheService } from "src/lib/cache/cache.service";
 import UserUpdateDTO from 'src/lib/dto/user.update.dto';
 import * as _ from 'lodash';
+import { JwtService } from "@nestjs/jwt";
+import { DocumentType } from "@typegoose/typegoose";
+import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
 
 @Injectable()
 export default class UserService {
@@ -16,6 +17,8 @@ export default class UserService {
     constructor(@InjectModel(User) private readonly UserModel: ReturnModelType<typeof User>,
         @Inject('ImgUploadService') private readonly ImgUploadService: ImgUploadService,
         private readonly CacheService: CacheService,
+        private readonly JwtService: JwtService,
+        @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     ) { }
     async getAllUsers(pageSize: number, page: number, sortBy: object,where:string) {
         //获取sortby的key
@@ -55,16 +58,21 @@ export default class UserService {
         }
     }
     
-    async create(user: User) { 
+    async create(user: User,currentUser:DocumentType<User>) { 
         let res = await this.UserModel.create(user)
         if (res) { 
             this.invalidateFindall()
+            this.logger.log(`创建用户 操作者:id=${currentUser._id} realname=${currentUser.realname}, 所创建的用户 id=${res._id} realname=${res.realname}`)
         }
         return res
     }
     
-    async upload(file: any, type: imgType, id?: string) {
-        return this.ImgUploadService.upload(file,new imgUploadParam(type,id));
+    async upload(file: any, type: imgType,user:DocumentType<User>, id?: string) {
+        let res = await this.ImgUploadService.upload(file, new imgUploadParam(type, id));
+        if (res.originName) { 
+            this.logger.log(`上传图片 操作者:id=${user._id} realname=${user.realname}, 文件名:${res.originName}`)
+        }
+        return res
     }   
 
     async detail(id: string) { 
@@ -78,23 +86,36 @@ export default class UserService {
         }
     }
 
-    async update(id: string, user: UserUpdateDTO) { 
+    async update(id: string, user: UserUpdateDTO,currentUser:DocumentType<User>) { 
         let res = await this.UserModel.updateOne({_id:id},user)
         if (res) { 
             this.invalidateFindall()
             this.CacheService.invalidate(`user_${id}`)
+            this.logger.log(`更新用户信息 操作者:id=${currentUser._id} realname=${currentUser.realname}, id=${id} realname=${user.realname}`)
         }
         return res
     }
 
-    async _delete(id: string) { 
+    async _delete(id: string,user:DocumentType<User>) { 
         let res = await this.UserModel.findByIdAndDelete(id)
         if (res) { 
             this.invalidateFindall()
             this.CacheService.invalidate(`user_${res._id}`)
+            this.logger.log(`删除用户信息 操作者:id=${user._id} realname=${user.realname}, id=${id} realname=${res.realname}`)
         }
         return res
     }
+
+    login(user: DocumentType<User>) { 
+        this.logger.log(`用户登录 操作者:id=${user._id} realname=${user.realname}`)
+        return { token: this.JwtService.sign({ id: String(user._id) }) };
+    }
+
+    logout(user: DocumentType<User>) { 
+        this.logger.log(`用户退出 操作者:id=${user._id} realname=${user.realname}`)
+        return 'ok'
+    }
+
     invalidateFindall() { 
         this.CacheService.invalidate('user_total')
         for (let key of this.findAllCacheItems) { 

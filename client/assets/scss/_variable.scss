@@ -4,4 +4,45 @@
 $spacing-types:(p:"padding", m:"margin");
 $spacing-direction:(t:"top", b:"bottom", l:"left", r:"right");
 $spacing-base-size:1rem;
-$spacing-size:(0:0, 1:0.25, 2:0.5, 3:1, 4:1.5, 5:3);
+$spacing-size:(0:0, 1:0.5, 2:1, 3:1.75, 4:2.5, 5:3.5);
+
+$colors: ("primary": #db9e3f,
+  "white": white,
+  "white-1":#fcfcfc,
+  "white-2":#eceef0,
+  "light": #f9f9f9,
+  "info":#4b67af,
+  "grey": #999,
+  "grey-1":#666,
+  "grey-2":#d4d9de,
+  "dark-1": #343440,
+  "dark": #222,
+  "black": black,
+  "blue":#4394e4,
+  "blue-1":#213797,
+  "red-1":#781a16
+);
+
+$font-size: (
+    xxs:0.75rem,//12px
+  xs: 0.8125rem, //13px
+  sm-1:0.875rem,//14px
+  sm: 0.9375rem, //15px
+  md: 1.0625rem, //17px
+  lg:1.125rem, //18px
+  xl:1.25rem //20px
+);
+
+$flex-jc:(start:flex-start,
+  center:center,
+  end:flex-end,
+  between:space-between,
+  around:space-around,
+);
+
+
+$flex-ai:(start:flex-start,
+  center:center,
+  end:flex-end,
+  strech:strech,
+);

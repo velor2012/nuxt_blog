@@ -1,4 +1,4 @@
-import { Injectable, Inject } from "@nestjs/common";
+import { Injectable, Inject, Logger } from "@nestjs/common";
 import { InjectModel } from "nestjs-typegoose";
 import { ReturnModelType } from "@typegoose/typegoose";
 import Category from "./category.model";
@@ -8,6 +8,9 @@ import { ImgUploadService } from '../lib/common/uploadImg.service';
 import imgUploadParam, { imgType } from "src/lib/types/imgParam";
 import { CacheService } from "src/lib/cache/cache.service";
 import * as _ from 'lodash';
+import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
+import User from "src/user/user.model";
+import { DocumentType } from "@typegoose/typegoose";
 
 @Injectable()
 export default class CategoryService {
@@ -15,6 +18,7 @@ export default class CategoryService {
     constructor(@InjectModel(Category) private readonly CategoryModel: ReturnModelType<typeof Category>,
         @Inject('ImgUploadService') private readonly ImgUploadService: ImgUploadService,
         private readonly CacheService: CacheService,
+        @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
     ) { }
     async getAllCategories(pageSize: number, page: number, sortBy: object, where: string) {
         //获取sortby的key
@@ -55,16 +59,21 @@ export default class CategoryService {
         }
     }
 
-    async create(category: Category) { 
+    async create(category: Category,user:DocumentType<User>) { 
         let res = await this.CategoryModel.create(category)
         if (res) { 
             this.invalidateFindall()
         }
+        this.logger.log(`创建分类 用户:id=${user._id} realname=${user.realname}, id=${res._id} name=${res.name}`)
         return res
     }
     
-    async upload(file: any, type: imgType, id?: string) {
-        return this.ImgUploadService.upload(file,new imgUploadParam(type,id));
+    async upload(file: any, type: imgType,user:DocumentType<User>, id?: string) {
+        let res = await this.ImgUploadService.upload(file, new imgUploadParam(type, id));
+        if (res.originName) { 
+            this.logger.log(`上传图片 用户:id=${user._id} realname=${user.realname}, 文件名:${res.originName}`)
+        }
+        return res
     }   
 
     async detail(id: string) { 
@@ -78,20 +87,22 @@ export default class CategoryService {
         }
     }
 
-    async update(id: string, category: Category) { 
+    async update(id: string, category: Category,user:DocumentType<User>) { 
         let res = await this.CategoryModel.updateOne({_id:id},category)
         if (res) { 
             this.invalidateFindall()
             this.CacheService.invalidate(`category_${res._id}`)
+            this.logger.log(`更新分类 用户:id=${user._id} realname=${user.realname}, id=${id} name=${category.name}`)
         }
         return res
     }
 
-    async _delete(id: string) { 
+    async _delete(id: string,user:DocumentType<User>) { 
         let res = await this.CategoryModel.findByIdAndDelete(id)
         if (res) { 
             this.invalidateFindall()
             this.CacheService.invalidate(`category_${res._id}`)
+            this.logger.log(`删除分类 用户:id=${user._id} realname=${user.realname}, id=${id} name=${res.name}`)
         }
         return res
     }

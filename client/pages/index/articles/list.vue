@@ -44,8 +44,17 @@ export default class ArticleListPage extends Vue {
     handleEdit(idx, id) {
         this.$router.push(MyPagePath.articlePages.getEditPath(id));
     }
-    handleDelete(idx, id) {
-        MyArticleAPI.deleteAPI(this.$axios, id);
+    handleDelete(index,id) {
+        this.$confirm("此操作将永久删除该文章, 是否继续?", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+        })
+            .then(async () => {
+                let res = await MyArticleAPI.deleteAPI(this.$axios, id);
+                res.success && this.getData(1)
+            })
+            .catch(() => {});
     }
     created() {
         Bus.$on(`pageChange_${this.pageName}`, this.getData);
@@ -53,12 +62,15 @@ export default class ArticleListPage extends Vue {
     mounted() {
         this.getData(1);
     }
-    getData(page: number) {
+    getTotalNumber(){
         MyArticleAPI.getTotalNumberAPI(this.$axios).then(res => {
-            if (res.success) {
-                this.totalData = res.data;
-            }
-        });
+        if (res.success) {
+            this.totalData = res.data;
+        }
+    })
+    }
+    getData(page: number) {
+        this.getTotalNumber()
         MyArticleAPI.findAllAPI(this.$axios, this.pageSize, page).then(res => {
             if (res.success) {
                 this.tableData = res.data;

@@ -9,6 +9,8 @@ import Auth from 'src/lib/decorator/auth.decorator';
 import LoginDto from 'src/lib/dto/login.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import imgUploadParam from 'src/lib/types/imgParam';
+import { User as CUser } from 'src/lib/decorator/user.decorator'
+import User from 'src/user/user.model';
 
 @ApiTags("草稿")
 @Injectable()
@@ -37,19 +39,20 @@ export default class DraftController {
 
     @Post()
     @Auth("创建草稿",['admin'],"jwt")
-    async create(@Body() body: Draft) {
-        return await this.DraftService.create(body);
+    async create(@Body() body: Draft,@CUser() user:DocumentType<User>) {
+        return await this.DraftService.create(body,user);
     }
     @Post("createOrUpdate")
-    @Auth("创建草稿",['admin'],"jwt")
-    async createOrUpdate(@Body() body: Draft) {
-        return await this.DraftService.createOrUpdate(body);
+    @Auth("创建或更新草稿",['admin'],"jwt")
+    async createOrUpdate(@Body() body: Draft,@CUser() user:DocumentType<User>) {
+        return await this.DraftService.createOrUpdate(body,user);
     }
+
     @Post("img")
     @UseInterceptors(FileInterceptor("file"))
     @Auth("上传图片",['admin'],"jwt")
-    async uploadContentImg(@UploadedFile() file, @Body() body: imgUploadParam) {
-        return await this.DraftService.upload(file,body.type,body.id)
+    async uploadContentImg(@UploadedFile() file, @Body() body: imgUploadParam,@CUser() user:DocumentType<User>) {
+        return await this.DraftService.upload(file,body.type,user,body.id)
     }
 
     @Get(":id")
@@ -61,14 +64,14 @@ export default class DraftController {
     
     @Put(":id")
     @Auth("更新草稿",['admin'],"jwt")
-    async update(@Param("id") id: string, @Body() body: Draft) {
-        return await this.DraftService.update(id, body);
+    async update(@Param("id") id: string, @Body() body: Draft,@CUser() user:DocumentType<User>) {
+        return await this.DraftService.update(id, body,user);
     }
 
     @Delete(":id")
     @Auth("删除草稿",['admin'],"jwt")
-    async _delete(@Param("id") id: string) {
-        return await this.DraftService._delete(id);
+    async _delete(@Param("id") id: string,@CUser() user:DocumentType<User>) {
+        return await this.DraftService._delete(id,user);
     }
 }
 

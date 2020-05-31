@@ -14,7 +14,7 @@ export default class Article extends TimeStamps {
     @IsString({message:"文章内容必须是字符串"})
     @IsNotEmpty({message:"文章内容不能为空"})
     @prop({required: true,})
-    public content: string
+    public content: String
 
     @IsString({ message: "文章封面必须是字符串" })
     @ApiProperty({ required: true, description: '文章封面', example: "http://xxx.xxx.com/xxx.jpg" })

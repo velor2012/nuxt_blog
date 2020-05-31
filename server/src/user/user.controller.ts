@@ -3,7 +3,6 @@ import { ApiTags } from '@nestjs/swagger';
 import {DocumentType } from "@typegoose/typegoose";
 import User from './user.model';
 import QueryDTO from 'src/lib/dto/query.dto';
-import { JwtService } from '@nestjs/jwt';
 import UserService from './user.service';
 import {User as CUser} from 'src/lib/decorator/user.decorator'
 import Auth from 'src/lib/decorator/auth.decorator';
@@ -19,7 +18,6 @@ import UserUpdateDTO from '../lib/dto/user.update.dto';
 export default class UserController {
     constructor(
         private readonly UserService: UserService,
-        private readonly JwtService: JwtService
     ) {}
     @Get()
     @Auth("获取所有管理员",['admin'],"jwt")
@@ -45,21 +43,21 @@ export default class UserController {
 
     @Post()
     @Auth("创建管理员",['admin'],"jwt")
-    async create(@Body() body: User) {
-        return await this.UserService.create(body);
+    async create(@Body() body: User,@CUser() user:DocumentType<User>) {
+        return await this.UserService.create(body,user);
     }
 
     @Post("img")
     @UseInterceptors(FileInterceptor("file"))
     @Auth("上传图片(包括头像)",['admin'],"jwt")
-    async upload(@UploadedFile() file, @Body() body: imgUploadParam) {
-        return await this.UserService.upload(file,body.type,body.id)
+    async upload(@UploadedFile() file, @Body() body: imgUploadParam,@CUser() user:DocumentType<User>) {
+        return await this.UserService.upload(file,body.type,user,body.id)
     }
 
     @Get("logout")
     @Auth("注销用户",['admin','user'],"jwt")
-    async logout() {
-        return 'ok'
+    async logout(@CUser() user:DocumentType<User>) {
+        return this.UserService.logout(user)
     }
 
     @Get(":id")
@@ -71,21 +69,21 @@ export default class UserController {
     
     @Put(":id")
     @Auth("更新管理员",['admin'],"jwt")
-    async update(@Param("id") id: string, @Body() body: UserUpdateDTO) {
-        return await this.UserService.update(id, body);
+    async update(@Param("id") id: string, @Body() body: UserUpdateDTO,@CUser() user:DocumentType<User>) {
+        return await this.UserService.update(id, body,user);
     }
 
     @Delete(":id")
     @Auth("删除管理员",['admin'],"jwt")
-    async _delete(@Param("id") id: string) {
-        return await this.UserService._delete(id);
+    async _delete(@Param("id") id: string,@CUser() user:DocumentType<User>) {
+        return await this.UserService._delete(id,user);
     }
 
     @Post("login")
     @Auth("登录",null,"local")
     async login(@Body() body: LoginDto, @CUser() user: DocumentType<User>) {
         //sign的参数必须使用对象，否则无法设置过期时间
-        return { token: this.JwtService.sign({ id: String(user._id) }) };
+        return this.UserService.login(user)
     }
 }
 

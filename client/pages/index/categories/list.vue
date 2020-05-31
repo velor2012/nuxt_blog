@@ -39,8 +39,17 @@ export default class CategoryListPage extends Vue {
     handleEdit(idx, id) {
         this.$router.push(MyPagePath.categoryPages.getEditPath(id));
     }
-    handleDelete(idx, id) {
-        MyCategoryAPI.deleteAPI(this.$axios, id);
+    handleDelete(index,id) {
+        this.$confirm("此操作将永久删除该分类, 是否继续?", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+        })
+            .then(async () => {
+                let res = await MyCategoryAPI.deleteAPI(this.$axios, id);
+                res.success && this.getData(1)
+            })
+            .catch(() => {});
     }
     created() {
         Bus.$on(`pageChange_${this.pageName}`, this.getData);

@@ -5,12 +5,12 @@ import * as fs from "fs";
 
 @Injectable()
 export abstract class ImgUploadService {
-    public abstract upload(file: any, param: imgUploadParam); 
+    public abstract async upload(file: any, param: imgUploadParam); 
 }
 
 @Injectable()
 export class githubUploader extends ImgUploadService {
-    async upload(file:any,param:imgUploadParam) {
+     async upload(file:any,param:imgUploadParam) {
         // let uuid:string = uuidv1()
         // let extName:string = file.originalname.split('.').pop()
         // fs.writeFileSync(`static/${uuid}.${extName}`,file.buffer)
@@ -28,6 +28,8 @@ export class localUploader extends ImgUploadService {
         let extName:string = file.originalname.split('.').pop()
         fs.writeFileSync(`static/${uuid}.${extName}`,file.buffer)
         return {
+            originName: file.originalname,
+            fileName: `${uuid}.${extName}`,
             filePath: `http://${process.env.HOST}:${process.env.PORT}/${uuid}.${extName}`
         }
     }   

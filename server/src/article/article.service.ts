@@ -1,4 +1,4 @@
-import { Injectable, Inject } from "@nestjs/common";
+import { Injectable, Inject, Logger } from "@nestjs/common";
 import { InjectModel } from "nestjs-typegoose";
 import { ReturnModelType } from "@typegoose/typegoose";
 import Article from "./article.model";
@@ -6,12 +6,16 @@ import { ImgUploadService } from '../lib/common/uploadImg.service';
 import imgUploadParam, { imgType } from "src/lib/types/imgParam";
 import { CacheService } from "src/lib/cache/cache.service";
 import * as _ from 'lodash';
+import { WINSTON_MODULE_NEST_PROVIDER } from "nest-winston";
+import User from "src/user/user.model";
+import { DocumentType } from "@typegoose/typegoose";
 
 @Injectable()
 export default class ArticleService {
     private findAllCacheItems: string[] = [];
     constructor(@InjectModel(Article) private readonly ArticleModel: ReturnModelType<typeof Article>,
         @Inject('ImgUploadService') private readonly ImgUploadService: ImgUploadService,
+        @Inject(WINSTON_MODULE_NEST_PROVIDER) private readonly logger: Logger,
         private readonly CacheService: CacheService,
     ) { }
     async getAllArticles(pageSize: number, page: number, sortBy: object, where: string) {
@@ -53,16 +57,21 @@ export default class ArticleService {
         }
     }
 
-    async create(article: Article) { 
+    async create(article: Article,user:DocumentType<User>) { 
         let res = await this.ArticleModel.create(article)
         if (res) { 
             this.invalidateFindall()
+            this.logger.log(`创建文章 用户:id=${user._id} realname=${user.realname}, id=${res._id} title=${res.title}`)
         }
         return res
     }
     
-    async upload(file: any, type: imgType, id?: string) {
-        return this.ImgUploadService.upload(file,new imgUploadParam(type,id));
+    async upload(file: any, type: imgType, user:DocumentType<User>, id?: string) {
+        let res = await this.ImgUploadService.upload(file, new imgUploadParam(type, id));
+        if (res.originName) { 
+            this.logger.log(`上传图片 用户:id=${user._id} realname=${user.realname}, 文件名:${res.originName}`)
+        }
+        return res
     }   
 
     async detail(id: string) { 
@@ -76,20 +85,22 @@ export default class ArticleService {
         }
     }
 
-    async update(id: string, article: Article) { 
+    async update(id: string, article: Article,user:DocumentType<User>) { 
         let res = await this.ArticleModel.updateOne({_id:id},article)
         if (res) { 
             this.invalidateFindall()
             this.CacheService.invalidate(`article_${id}`)
+            this.logger.log(`更新文章 用户:id=${user._id} realname=${user.realname}, id=${id} title=${article.title}`)
         }
         return res
     }
 
-    async _delete(id: string) { 
+    async _delete(id: string,user:DocumentType<User>) { 
         let res = await this.ArticleModel.findByIdAndDelete(id)
         if (res) { 
             this.invalidateFindall()
             this.CacheService.invalidate(`article_${res._id}`)
+            this.logger.log(`删除文章 用户:id=${user._id} realname=${user.realname}, id=${res._id} title=${res.title}`)
         }
         return res
     }
@@ -98,6 +109,16 @@ export default class ArticleService {
         this.CacheService.invalidate('article_total')
         for (let key of this.findAllCacheItems) { 
             this.CacheService.invalidate(key)
+        }
+    }
+
+    async isArticleUnique(title: string) { 
+        let cache_article = await this.CacheService.get(`article_exist_${title}`)
+        if (cache_article) return true
+        else { 
+            let article = await this.ArticleModel.findOne({ title: title }, 'id')
+            this.CacheService.set(`article_exist_${title}`, Boolean(article))
+            return Boolean(article)
         }
     }
 }

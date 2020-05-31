@@ -25,6 +25,19 @@ export class DraftPages {
     }
     list = '/drafts/list'
 }
+export class NotePages {
+    create = '/extend/notes/create'
+    getEditPath(id: string): string {
+        return `/extend/notes/edit/${id}`;
+    }
+    list = '/extend/notes/list'
+}
+export class ExtendPages { 
+    emoji = '/extend/emoji'
+    gallery = '/extend/gallery'
+    note = new NotePages()
+}
+
 export class PagePath { 
     articlePages: ArticlePages = new ArticlePages()
     draftPages: DraftPages = new DraftPages()
@@ -32,6 +45,8 @@ export class PagePath {
     categoryPages: CategoryPages = new CategoryPages()
     systemPage = '/system'
     loginPath = '/login'
+    logPage = '/logPage'
+    extendPages:ExtendPages = new ExtendPages()
 }
 const MyPagePath = new PagePath()
 export default MyPagePath

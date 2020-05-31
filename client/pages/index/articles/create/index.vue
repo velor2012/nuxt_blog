@@ -55,7 +55,7 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane label="文章内容">
-                <markdown-editor :page="page" :originContent="originContent" ref="markdown" />
+                <markdown-editor :page="page" :originContent.sync="originContent" ref="markdown" />
             </el-tab-pane>
         </el-tabs>
 
@@ -70,7 +70,7 @@
     </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch, NextTick } from "nuxt-property-decorator";
+import { Component, Vue, Watch, NextTick, Inject, Provide, ProvideReactive } from "nuxt-property-decorator";
 import MyArticleAPI from "~/api/article";
 import { ElForm } from "element-ui/types/form";
 import Article from "~/types/Article";
@@ -93,7 +93,7 @@ export default class MyArticlePage extends Vue {
     type: string = "create";
     categoryOptons: string[] = [];
     timing: any;
-    originContent: string = "";
+    originContent="";
     coverUploadParam: imgUploadParam = new imgUploadParam("cover");
     contentUploadParam: imgUploadParam = new imgUploadParam("contentImg");
     localStorage: string = "";
@@ -101,20 +101,23 @@ export default class MyArticlePage extends Vue {
     imgUploadURL = MyArticleAPI.imgUploadURL;
     id: string = "";
     formdata: Article = new Article();
-    formName: string = "ruleForm";
+    formName: string = "article_form";
+    saving = false
     rules: any = {
         categories: [
             { required: true, trigger: "blur" },
             { validator: this.validateCategories, trigger: "blur" }
         ],
-        title: [{ required: true, trigger: "blur" }],
+        title: [{ required: true, trigger: "blur" },
+            { validator: this.validateTitleDuplicate, trigger: "blur" }
+        ],
         resume: [{ required: true, trigger: "blur" }],
         cover: [{ required: true, trigger: "blur" }]
     };
     mounted() {
         this.id = _.get(this, "$route.params.id");
         this.getAllCategories();
-        this.autoFlush();
+        // this.autoFlush();
         if (!_.isEmpty(this.id)) {
             this.type = "edit";
             this.coverUploadParam.id = this.id;
@@ -127,8 +130,7 @@ export default class MyArticlePage extends Vue {
         });
     }
     created(){
-        Bus.$on(`save_${this.page}`,this.save)
-        Bus.$on(`uploadImg_${this.page}`,this.uploadImg)
+        this.addBusEvent()
     }
     getOneArticle() {
         MyArticleAPI.findOneAPI(this.$axios, this.id).then(res => {
@@ -145,9 +147,29 @@ export default class MyArticlePage extends Vue {
             callback();
         }
     }
+    async validateTitleDuplicate(rule: any, value: any, callback: any){
+        //保存草稿以及编辑的时候不需要检测
+        if(this.type == 'edit' || this.saving){
+            callback()
+            return
+        }
+       let res = await MyArticleAPI.checkTitleDuplicate(this.$axios,value)
+       if(res.success){
+           res.data && callback(new Error("标题重复"));
+       }else{
+           callback()
+       }
+    }
     submitForm(formName: string) {
+        Bus.$emit('test')
+        if(!this.$refs[formName]){
+            console.log(formName)
+        }
         (this.$refs[formName] as ElForm).validate(valid => {
             if (valid) {
+                if(!this.flush()){
+                    this.$message.error('提交失败,无法获取文章内容')
+                }
                 this.type === "create"
                     ? this.handleCreate()
                     : this.handleEdit();
@@ -212,27 +234,21 @@ export default class MyArticlePage extends Vue {
     onError(err: Error, file: File, fileList: File[]) {
         this.$message.error("上传失败");
     }
-
-    autoFlush() {
-        let myref = this.$refs["markdown"];
-        if (!myref) {
-            return setTimeout(() => {
-                this.autoFlush();
-            }, 1000);
+    flush(){
+        let editor = _.get(this,'$refs.markdown.contentEditor')
+        if(!editor){
+            return false
         }
-        this.timing = setInterval(() => {
-            this.formdata.content = (myref as any).contentEditor.getValue();
-        }, 1000);
+        this.formdata.content = editor.getValue()
+        return true
     }
     save(){
+        this.saving = true;
         (this.$refs[this.formName] as ElForm).validate(valid => {
             if (valid) {
-            let editor = _.get(this,'$refs.markdown.contentEditor')
-                    if(!editor){
-                        this.$message.error('保存失败')
+                    if(!this.flush()){
+                        this.$message.error('保存失败,无法获取文章内容')
                     }
-                    this.formdata.content = editor.getValue()
-
                     let article = this.formdata
                     let draft = new Draft()
                     draft.title = article.title
@@ -240,24 +256,33 @@ export default class MyArticlePage extends Vue {
                     draft.cover = article. cover
                     draft.categories = article.categories
                     draft.resume = article.resume
-                    draft.ispublished = false
                     //有id就是已经发布的文章
                     if(this.formdata._id){
-                        draft.ispublished = true
+                        draft.articleId = article._id
                     }
                     MyDraftAPI.findOneUpdateOrCreated(this.$axios,draft).then(res=>{
+                        this.saving = false;
                         if(res.success) this.$message.success('保存成功')
                         else this.$message.error('保存失败')
                     })
             } else {
                 this.$message.warning('文章信息未完善')
+                this.saving = false;
                 return false;
             }
         });
     }
-    beforeRouteLeave(to, from, next) {
-        clearInterval(this.timing);
-        next();
+    addBusEvent(){
+        Bus.$on(`save_${this.page}`,this.save)
+        Bus.$on(`uploadImg_${this.page}`,this.uploadImg)
+    }
+    removeBusEvent(){
+        Bus.$off(`save_${this.page}`)
+        Bus.$off(`uploadImg_${this.page}`)
+    }
+    //在vue对象的beforeDestroy钩子中调用以上函数
+    beforeDestroy() {
+        this.removeBusEvent()
     }
 }
 </script>

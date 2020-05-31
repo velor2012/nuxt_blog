@@ -33,7 +33,7 @@ export default class Draft extends TimeStamps {
     public resume: String
     
     @ApiProperty({ description: '草稿是否对应某篇已经发布的文章',required:true })
-    @IsBoolean({ message: "ispublished必须是字符串" })
-    @prop({required:true})
-    public ispublished: boolean
+    @IsString({ message: "articleId必须是字符串" })
+    @prop({ ref: "Category",required:true })
+    public articleId: Category
   }

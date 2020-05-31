@@ -15,5 +15,5 @@ export default class Draft {
 
     createdTime: string = "";
 
-    ispublished: boolean = false;
+    articleId?: string;
 }

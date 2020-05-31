@@ -1,6 +1,6 @@
 import _ from "lodash";
 
-export type imgType = 'cover' | 'emoji' | 'contentImg';
+export type imgType = 'cover' | 'emoji' | 'contentImg' | 'gallery';
 export default class imgUploadParam { 
     type: imgType;//需要指明上传的图片的类型
     id?: string;//如果是contentImg则必须要id，其他两个单独存放

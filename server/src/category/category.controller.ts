@@ -4,7 +4,9 @@ import Category from './category.model';
 import Auth from 'src/lib/decorator/auth.decorator';
 import CategoryService from './category.service';
 import QueryDTO from 'src/lib/dto/query.dto';
-
+import { User as CUser } from 'src/lib/decorator/user.decorator'
+import User from 'src/user/user.model';
+import { DocumentType } from "@typegoose/typegoose";
 
 @ApiTags('分类')
 @Injectable()
@@ -26,8 +28,8 @@ export default class CategoryController {
 
         @Post()
         @Auth("创建分类",['admin'],"jwt") 
-        async create(@Body() body:Category) { 
-            return await this.CategoryService.create(body)
+        async create(@Body() body:Category,@CUser() user:DocumentType<User>) { 
+            return await this.CategoryService.create(body,user)
         }
     
         @Get('total')
@@ -44,12 +46,12 @@ export default class CategoryController {
     
         @Put(':id')
         @Auth("更新分类",['admin'],"jwt")
-        async update(@Param('id') id: string,@Body() body:Category) { 
-            return await this.CategoryService.update(id,body)
+        async update(@Param('id') id: string,@Body() body:Category,@CUser() user:DocumentType<User>) { 
+            return await this.CategoryService.update(id,body,user)
         }
         @Delete(':id')
         @Auth("删除分类",['admin'],"jwt")
-        async _delete(@Param('id') id: string) { 
-            return await this.CategoryService._delete(id)
+        async _delete(@Param('id') id: string,@CUser() user:DocumentType<User>) { 
+            return await this.CategoryService._delete(id,user)
         }
     }

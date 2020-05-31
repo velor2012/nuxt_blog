@@ -16,6 +16,19 @@ export class ArticleAPI extends CommonAPI  {
 		let res = await axios
 			.get(`${this.prefix}/total`)
 		return generateResponse(res as AxiosResponse);
+    }
+    public async checkTitleDuplicate(
+        axios: NuxtAxiosInstance,
+        title:string
+	): Promise<MyResponse> {
+		let error = false;
+		let res = await axios
+            .get(`${this.prefix}/unique`, {
+                params: {
+                    title:title
+                }
+            })
+		return generateResponse(res as AxiosResponse);
 	}
 }
 const MyArticleAPI = new ArticleAPI()

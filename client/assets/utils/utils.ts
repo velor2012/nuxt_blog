@@ -8,7 +8,6 @@ export var baseUrl: string =
         : (baseUrl = process.env.DEV_URL);
 
 export function getToken() {
-    let localStorage = _.get(window, "localStorage");
     if (localStorage) {
         return localStorage.getItem("auth._token.local");
     } else {

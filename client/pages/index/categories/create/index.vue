@@ -42,7 +42,7 @@ type:string="create";
 typeOptions = config.types
   id: string = "";
   formdata: Category = new Category();
-  formName: string = "ruleForm";
+    formName: string = "category_form";
   rules: any = 
     {
       name: [{ required: true, trigger: "blur" }]

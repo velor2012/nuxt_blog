@@ -55,22 +55,20 @@
                 </el-form>
             </el-tab-pane>
             <el-tab-pane label="文章内容">
-                <markdown-editor :page="page" :originContent="originContent" ref="markdown" />
+                <markdown-editor :page="page" :originContent.sync="originContent" ref="markdown" />
             </el-tab-pane>
         </el-tabs>
 
         <el-row type="flex" justify="center" class="mt-4">
             <el-button type="primary" @click="submitForm(formName)">
-                {{
-                type == "create" ? "创建" : "保存"
-                }}
+                发布/更新
             </el-button>
             <el-button @click="resetForm(`${formName}`)">重置</el-button>
         </el-row>
     </div>
 </template>
 <script lang="ts">
-import { Component, Vue, Watch, NextTick } from "nuxt-property-decorator";
+import { Component, Vue, Watch, NextTick, ProvideReactive, Provide } from "nuxt-property-decorator";
 import MyDraftAPI from "~/api/draft";
 import { ElForm } from "element-ui/types/form";
 import Draft from "~/types/Draft";
@@ -81,6 +79,7 @@ import imgUploadParam from "~/types/uploadImg";
 import _ from "lodash";
 import MarkdownEditor from "~/components/markdown.vue";
 import Bus from '~/assets/utils/utils';
+import MyArticleAPI from "../../../../api/article";
 @Component({
     components: {
         MarkdownEditor
@@ -99,7 +98,7 @@ export default class MyDraftPage extends Vue {
     imgUploadURL = MyDraftAPI.imgUploadURL;
     id: string = "";
     formdata: Draft = new Draft();
-    formName: string = "ruleForm";
+    formName: string = "daft_form";
     rules: any = {
         categories: [
             { required: true, trigger: "blur" },
@@ -109,14 +108,9 @@ export default class MyDraftPage extends Vue {
         resume: [{ required: true, trigger: "blur" }],
         cover: [{ required: true, trigger: "blur" }]
     };
-    created(){
-        Bus.$on(`save_${this.page}`,this.save)
-        Bus.$on(`uploadImg_${this.page}`,this.uploadImg)
-    }
     mounted() {
         this.id = _.get(this, "$route.params.id");
         this.getAllCategories();
-        this.autoFlush();
         if (!_.isEmpty(this.id)) {
             this.type = "edit";
             this.coverUploadParam.id = this.id;
@@ -147,6 +141,9 @@ export default class MyDraftPage extends Vue {
     submitForm(formName: string) {
         (this.$refs[formName] as ElForm).validate(valid => {
             if (valid) {
+                if(!this.flush()){
+                    this.$message.error('提交失败,无法获取文章内容')
+                }
                 this.handleEdit();
             } else {
                 // console.log('error submit!!');
@@ -154,18 +151,23 @@ export default class MyDraftPage extends Vue {
             }
         });
     }
-    handleEdit() {
-        MyDraftAPI.updateAPI(this.$axios, this.id, this.formdata).then(
-            res => {
-                if (res.success) {
-                    this.$message({
-                        message: "修改成功",
-                        type: "success"
-                    });
-                    this.$router.push(MyPagePath.draftPages.list);
-                }
-            }
-        );
+    async handleEdit() {
+        let res = null
+        if(this.formdata.articleId){
+            let {_id,articleId, ...other} = this.formdata
+            res = await MyArticleAPI.updateAPI(this.$axios,this.formdata.articleId,other)
+        }else{
+            let {_id, ...other} = this.formdata
+            res = await MyArticleAPI.createAPI(this.$axios,other)
+        }
+        if (res.success) {
+            let res2 = await MyDraftAPI.deleteAPI(this.$axios,this.formdata._id)
+            res2.success && this.$message({
+                message: "发布/更新成功",
+                type: "success"
+            });
+            this.$router.push(MyPagePath.draftPages.list);
+        }
     }
 
     resetForm(formName: string) {
@@ -182,16 +184,13 @@ export default class MyDraftPage extends Vue {
         this.$message.error("上传失败");
     }
 
-    autoFlush() {
-        let myref = this.$refs["markdown"];
-        if (!myref) {
-            return setTimeout(() => {
-                this.autoFlush();
-            }, 1000);
+    flush(){
+        let editor = _.get(this,'$refs.markdown.contentEditor')
+        if(!editor){
+            return false
         }
-        this.timing = setInterval(() => {
-            this.formdata.content = (myref as any).contentEditor.getValue();
-        }, 1000);
+        this.formdata.content = editor.getValue()
+        return true
     }
     beforeRouteLeave(to, from, next) {
         clearInterval(this.timing);
@@ -216,11 +215,9 @@ export default class MyDraftPage extends Vue {
     save(){
         (this.$refs[this.formName] as ElForm).validate(valid => {
             if (valid) {
-            let editor = _.get(this,'$refs.markdown.contentEditor')
-                    if(!editor){
-                        this.$message.error('保存失败')
-                    }
-                    this.formdata.content = editor.getValue()
+                if(!this.flush()){
+                    this.$message.error('提交失败,无法获取草稿内容')
+                }
 
                     let draft = this.formdata
                     MyDraftAPI.updateAPI(this.$axios,draft._id,draft).then(res=>{
@@ -232,6 +229,23 @@ export default class MyDraftPage extends Vue {
                 return false;
             }
         });
+    }
+
+    //处理事件
+    created(){
+        this.addBusEvent()
+    }
+    addBusEvent(){
+        Bus.$on(`save_${this.page}`,this.save)
+        Bus.$on(`uploadImg_${this.page}`,this.uploadImg)
+    }
+    removeBusEvent(){
+        Bus.$off(`save_${this.page}`)
+        Bus.$off(`uploadImg_${this.page}`)
+    }
+    //在vue对象的beforeDestroy钩子中调用以上函数
+    beforeDestroy() {
+        this.removeBusEvent()
     }
 }
 </script>

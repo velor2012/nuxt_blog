@@ -5,7 +5,7 @@
 </template>
 <script lang="ts">
 import "vditor/src/assets/scss/index.scss" // Or use dark
-import {Component,Vue, Prop, Watch} from "nuxt-property-decorator"
+import {Component,Vue, Prop, Watch, PropSync, InjectReactive, Inject} from "nuxt-property-decorator"
 import Vditor from 'vditor';
 import Bus from '~/assets/utils/utils';
 @Component({
@@ -13,9 +13,9 @@ components: {
 }
 })
 export default class MarkdownEditor extends Vue {
-    @Prop({ type: String, required: true,default:'' }) readonly originContent: String | undefined;
-    @Prop({ type: String, required: true,default:'' }) readonly page: String | undefined;
-    @Prop({ type: Boolean, required: false,default:true }) readonly showSaveButton: boolean | undefined;
+    @PropSync('originContent',{ type: String, required: true }) readonly syncOriginContent: string ;
+    @Prop({ type: String, required: true,default:'' }) readonly page: String;
+    @Prop({ type: Boolean, required: false,default:true }) readonly showSaveButton: boolean;
     contentEditor:Vditor;
     originToolbar =['emoji' , 
     'headings' , 'bold' , 'italic' , 'strike' , '|' , 'line' , 'quote' , 'list' , 'ordered-list' , 'check' ,'outdent' ,'indent' ,
@@ -26,6 +26,7 @@ export default class MarkdownEditor extends Vue {
     saveSVG='<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1590563847924" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1949" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><defs><style type="text/css"></style></defs><path d="M931.882 259.882l-167.764-167.764A96 96 0 0 0 696.236 64H160C106.98 64 64 106.98 64 160v704c0 53.02 42.98 96 96 96h704c53.02 0 96-42.98 96-96V327.764a96 96 0 0 0-28.118-67.882zM512 832c-70.692 0-128-57.308-128-128 0-70.692 57.308-128 128-128s128 57.308 128 128c0 70.692-57.308 128-128 128z m192-609.04V424c0 13.254-10.746 24-24 24H216c-13.254 0-24-10.746-24-24V216c0-13.254 10.746-24 24-24h457.04c6.366 0 12.47 2.528 16.97 7.03l6.96 6.96A23.992 23.992 0 0 1 704 222.96z" fill="" p-id="1950"></path></svg>'
     hideMenu=false;
     doneInit=false;
+    timing = null;
     mounted () {
         let _this = this;
         this.$nextTick(()=>{
@@ -51,18 +52,20 @@ export default class MarkdownEditor extends Vue {
                 outline:true,
                 minHeight: 500,
             })
+            this.flushOriginContent()
             this.doneInit=true
         })
     }
-    @Watch('originContent')
-    onOriginContentChange(value:string){
+    @Watch('syncOriginContent')
+    flushOriginContent(){
+        this.timing && clearInterval(this.timing)
         try {
-            this.contentEditor.setValue(value)
+            this.contentEditor.setValue(this.syncOriginContent || '')
         } catch (error) {
             let _this = this;
-            setTimeout(()=>{
-                _this.contentEditor.setValue(value)
-            },3000)
+            this.timing = setInterval(()=>{
+                _this.flushOriginContent()
+            },100)
         }
     }
     onHideMenuClick(){

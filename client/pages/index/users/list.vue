@@ -56,7 +56,7 @@ export default class extends Vue {
         })
             .then(async () => {
                 let res = await MyUserAPI.deleteAPI(this.$axios, id);
-                res.success && this.tableData.splice(index,1)
+                res.success && this.getData(1)
             })
             .catch(() => {});
     }
