@@ -9,7 +9,7 @@
             v-for="(item,idx) in exitOrders"
             :key="idx"
             >
-                <el-tag>{{item}}</el-tag>
+                <el-tag :class="{'text-red':formdata.order==item}">{{item}}</el-tag>
             </el-col>
 
         </el-row>
@@ -43,6 +43,7 @@ import _ from 'lodash';
 import MyNoteAPI from "../api/note";
 import imgUploadParam from "../types/uploadImg";
 import Bus from '~/assets/utils/utils';
+import { Message } from "element-ui";
 @Component({
     components: {
         MarkdownEditor
@@ -56,14 +57,15 @@ export default class SubDocPage extends Vue {
     formdata: SubDoc = new SubDoc();
     formName: string = "subdoc_form";
     contentUploadParam: imgUploadParam = new imgUploadParam("contentImg");
+    imgUploading=false
     exitOrders: Number[] = [];
     originEditedItemOrder:Number
     rules: any = {
         title: [{ required: true, trigger: "blur" },
-            // { validator: this.validateTitle, trigger: "blur" }
+            { validator: this.validateTitle, trigger: "blur" }
         ],
         order: [{ required: true, trigger: "blur" },
-            // { validator: this.validateOrder, trigger: "blur" }
+            { validator: this.validateOrder, trigger: "blur" }
         ]
     };
     _validate():boolean{
@@ -95,9 +97,10 @@ export default class SubDocPage extends Vue {
     }
     validateTitle(rule: any, value: any, callback: any) {
         //当前编辑的子文档序号可以和自己原先的一样 
+        const currentIndex = this.syncidx
         let res = this.note.subDoc.find((v,index)=>{
-            if(index == this.syncidx) return false
-            return v.title == this.note.subDoc[this.syncidx].title
+            if(index == currentIndex) return false
+            return v.title == value
         })
         Boolean(res)?callback(new Error("子文档名重复")):callback()
     }
@@ -115,9 +118,9 @@ export default class SubDocPage extends Vue {
         this.originContent = ""
         this.$refs[this.formName] && (this.$refs[this.formName] as ElForm).resetFields()
     }
-    @Watch('syncidx')
-    onNoteChage(syncidx:number){
+    initExitOrders(){
         this.exitOrders = this.note.subDoc.map(v=>v.order)
+        this.exitOrders.sort((a,b)=>a>b?1:-1)
     }
     @Watch('syncidx')
     onIdxChange(syncidx:number){
@@ -133,15 +136,20 @@ export default class SubDocPage extends Vue {
             this.originContent = this.formdata.content
             this.originEditedItemOrder = this.formdata.order
         }
-        // if(this.note){
-        //     this.onNoteChage(this.note)
-        // }
+        this.initExitOrders()
+    }
+    @Watch('imgUploading')
+    onImgUploadingChange(value){
+        value && this.$message({message:'正在上传',duration:0,iconClass:"el-icon-loading"});
+        !value && (Message as any).closeAll()
     }
     uploadImg(files: File[]){
         if(this.note._id){
             this.contentUploadParam.id = this.note._id
         }
+        this.imgUploading=true;
         let res =  MyNoteAPI.uploadImg(MyNoteAPI.imgUploadURL,this.$axios,files[0],this.contentUploadParam).then(res=>{
+            this.imgUploading=false
             if(res.success){
                 this.$message.success('上传成功')
                 let editor = _.get(this,'$refs.markdown.contentEditor')
@@ -152,6 +160,9 @@ export default class SubDocPage extends Vue {
                     }
             }else this.$message.error('上传失败')
         })
+    }
+    created(){
+        this.addBusEvent()
     }
     addBusEvent(){
         Bus.$on(`uploadImg_${this.page}`,this.uploadImg)

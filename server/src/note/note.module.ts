@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import Note from './note.model';
 import NoteController from './note.controller';
 import { TypegooseModule } from 'nestjs-typegoose';
-import NoteService from './note.sevice';
+import NoteService from './note.service';
 
 @Module({
     imports: [TypegooseModule.forFeature([Note])],

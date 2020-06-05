@@ -54,5 +54,12 @@ html {
   color: #fff;
   background-color: #35495e;
 }
-
+.list{
+    .el-input{
+        max-width: 20rem;
+    }
+    em{
+        color:map-get($map: $colors, $key: "red")
+    }
+}
 </style>

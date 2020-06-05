@@ -23,7 +23,7 @@ if (process.env.CACHE == '2') {
     cacheModule = CacheModule.register()
 }
 
-//判断使用过何种图片上传方法
+//判断使用过何种缓存方法
 const configServiceProvider = {
     provide: CacheService,
     useClass:

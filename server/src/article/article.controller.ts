@@ -11,6 +11,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import imgUploadParam from '../lib/types/imgParam';
 import { User as CUser } from 'src/lib/decorator/user.decorator'
 import User from 'src/user/user.model';
+import SearchDTO from '../lib/dto/search.dto';
 
 @ApiTags("文章")
 @Injectable()
@@ -28,6 +29,12 @@ export default class ArticleController {
         sb[sortBy] = -1;
         return await this.ArticleService.getAllArticles(pageSize,page,sb,where)
     }
+    @Get('search')
+    @Auth("查询")
+    async search(@Query() query: SearchDTO) {
+        let { keyword, pageSize, page } = query 
+        return await this.ArticleService.search(keyword,pageSize,page);
+    }
 
     @Get('total')
     @Auth("获取文章数量")
@@ -39,6 +46,11 @@ export default class ArticleController {
     @Auth("创建文章",['admin'],"jwt")
     async create(@Body() body: Article,@CUser() user:DocumentType<User>) {
         return await this.ArticleService.create(body,user);
+    }
+
+    @Get('visits/:id')
+    async visit(@Param("id") id: string) {
+        return await this.ArticleService.visit(id);
     }
 
     @Post("img")

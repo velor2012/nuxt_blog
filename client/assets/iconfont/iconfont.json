@@ -1,0 +1,58 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "88074",
+      "name": "play",
+      "font_class": "play",
+      "unicode": "34ad",
+      "unicode_decimal": 13485
+    },
+    {
+      "icon_id": "284507",
+      "name": "back",
+      "font_class": "back",
+      "unicode": "e606",
+      "unicode_decimal": 58886
+    },
+    {
+      "icon_id": "348858",
+      "name": "trash",
+      "font_class": "trash",
+      "unicode": "ec3a",
+      "unicode_decimal": 60474
+    },
+    {
+      "icon_id": "372210",
+      "name": "cc-menu-circle",
+      "font_class": "cc-menu-circle",
+      "unicode": "e672",
+      "unicode_decimal": 58994
+    },
+    {
+      "icon_id": "587031",
+      "name": "picture",
+      "font_class": "picture",
+      "unicode": "e7b0",
+      "unicode_decimal": 59312
+    },
+    {
+      "icon_id": "6806775",
+      "name": "Boxing-Helmet",
+      "font_class": "Boxing-Helmet",
+      "unicode": "eb5d",
+      "unicode_decimal": 60253
+    },
+    {
+      "icon_id": "9568065",
+      "name": "dot",
+      "font_class": "dot",
+      "unicode": "e64f",
+      "unicode_decimal": 58959
+    }
+  ]
+}

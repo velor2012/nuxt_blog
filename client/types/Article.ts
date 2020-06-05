@@ -14,4 +14,6 @@ export default class Article {
     updatedTime: string = "";
 
     createdTime: string = "";
+
+    visits?:number
 }

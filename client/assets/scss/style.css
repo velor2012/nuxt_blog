@@ -490,6 +490,14 @@
   background-color: #781a16;
 }
 
+.text-red {
+  color: red;
+}
+
+.bg-red {
+  background-color: red;
+}
+
 .fs-xxs {
   font-size: 0.75rem;
 }

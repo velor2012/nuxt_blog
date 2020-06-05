@@ -1,5 +1,5 @@
 import { prop, arrayProp, Ref } from '@typegoose/typegoose';
-import { IsString, IsNotEmpty, IsArray, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, IsOptional, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import Category from 'src/category/category.model';
@@ -8,7 +8,7 @@ export default class Note extends TimeStamps {
     @ApiProperty({ description: '笔记名',required:true })
     @IsString({message:"笔记名必须是字符串"})
     @IsNotEmpty({message:"笔记名不能为空"})
-    @prop({required:true})
+    @prop({required:true,unique:true})
     public name: string;
     
 
@@ -27,7 +27,13 @@ export default class Note extends TimeStamps {
     @IsString({ message: "笔记简介必须是字符串" })
     @prop({required:true})
     public resume: String
-    
+
+    @ApiProperty({ description: '笔记访问量' })
+    @IsOptional()
+    @IsNumber({},{ message: "笔记访问量必须是数字" })
+    @prop({required:true,default:0})
+    public visits?: number
+
     @ApiProperty({ description: '笔记内容(子文档数组)',required:true })
     @IsArray({ message: "子文档必须是数组" })
     @arrayProp({required:true, items: SubDoc })

@@ -104,7 +104,7 @@ export default class extends Vue {
 </script>
 <style lang="scss">
 .card-header {
-    font-size: 1.5rem;
+    // font-size: 1.5rem;
     font-weight: bold;
 }
 </style>

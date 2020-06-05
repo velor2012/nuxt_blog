@@ -10,7 +10,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import imgUploadParam from '../lib/types/imgParam';
 import { User as CUser } from 'src/lib/decorator/user.decorator'
 import User from 'src/user/user.model';
-import NoteService from './note.sevice';
+import NoteService from './note.service';
+import SearchDTO from 'src/lib/dto/search.dto';
 
 @ApiTags("笔记")
 @Injectable()
@@ -29,6 +30,20 @@ export default class NoteController {
         return await this.NoteService.getAllNotes(pageSize,page,sb,where)
     }
 
+    @Get('searchSubDoc/:keyword')
+    @Auth("查询子文档")
+    async searchSubDoc(@Query() query: SearchDTO) {
+        let { keyword, pageSize, page } = query 
+        return await this.NoteService.searchSubDoc(keyword, pageSize, page);
+    }
+
+    @Get('searchNote')
+    @Auth("查询笔记")
+    async searchNote(@Query() query: SearchDTO) {
+        let { keyword, pageSize, page } = query 
+        return await this.NoteService.searchNote(keyword, pageSize, page);
+    }
+
     @Get('total')
     @Auth("获取笔记数量")
     async total() {
@@ -36,9 +51,14 @@ export default class NoteController {
     }
 
     @Post()
-    // @Auth("创建笔记",['admin'],"jwt")
+    @Auth("创建笔记",['admin'],"jwt")
     async create(@Body() body: Note,@CUser() user:DocumentType<User>) {
         return await this.NoteService.create(body,user);
+    }
+
+    @Get('visits/:id')
+    async visit(@Param("id") id: string) {
+        return await this.NoteService.visit(id);
     }
 
     @Post("img")

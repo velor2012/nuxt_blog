@@ -7,7 +7,7 @@
                     <div>{{scope.row.categories.map(v=>v.name).join('/')}}</div>
                 </template>
             </el-table-column>
-            <el-table-column prop="resume" label="简介" />
+            <el-table-column prop="resume" show-overflow-tooltip label="简介" />
             <el-table-column label="操作">
                 <template slot-scope="scope">
                     <el-button size="mini" @click="handleEdit(scope.$index, scope.row._id)">编辑</el-button>
@@ -39,7 +39,7 @@ import Bus from "~/assets/utils/utils";
 export default class DraftListPage extends Vue {
     pageName = "draft_list";
     totalData = 1;
-    pageSize = 1;
+    pageSize = 10;
     tableData: Draft[] = [];
     handleEdit(idx, id) {
         this.$router.push(MyPagePath.draftPages.getEditPath(id));

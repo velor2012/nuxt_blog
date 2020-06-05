@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from "@nestjs/common";
+import { Injectable, Inject, Logger, HttpException, HttpStatus } from "@nestjs/common";
 import { InjectModel } from "nestjs-typegoose";
 import { ReturnModelType } from "@typegoose/typegoose";
 import Draft from "./draft.model";
@@ -87,7 +87,7 @@ export default class DraftService {
     }
     
     async upload(file: any, type: imgType,user:DocumentType<User>, id?: string) {
-        let res = await this.ImgUploadService.upload(file, new imgUploadParam(type, id));
+        let res = await this.ImgUploadService.upload(file, new imgUploadParam(type, id),'drafts');
         if (res.originName) { 
             this.logger.log(`上传图片 用户:id=${user._id} realname=${user.realname}, 文件名:${res.originName}`)
         }
@@ -99,7 +99,7 @@ export default class DraftService {
         if (cache_draft) {
             return cache_draft
         } else { 
-            let draft = await this.DraftModel.findById(id)
+            let draft = await this.DraftModel.findById(id).catch(error => { throw new HttpException("找不到草稿",HttpStatus.BAD_REQUEST)});
             draft && this.CacheService.set(`draft_${id}`, draft)
             return draft
         }

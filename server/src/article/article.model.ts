@@ -1,5 +1,5 @@
 import { prop, arrayProp, Ref } from '@typegoose/typegoose';
-import { IsString, IsNotEmpty, IsArray, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray, IsOptional, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { TimeStamps } from '@typegoose/typegoose/lib/defaultClasses';
 import Category from 'src/category/category.model';
@@ -32,4 +32,9 @@ export default class Article extends TimeStamps {
     @prop({required:true})
     public resume: String
     
+    @ApiProperty({ description: '文章访问量', required: false })
+    @IsOptional()
+    @IsNumber({},{ message: "文章访问量必须是数字" })
+    @prop({default:0})
+    public visits?: number
   }

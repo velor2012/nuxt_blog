@@ -35,6 +35,7 @@
                             :data="coverUploadParam"
                             :show-file-list="false"
                             :on-success="handleCoverSuccess"
+                            :on-progress="onProgress"
                             :on-error="onError"
                             :headers="{
                                         Authorization:localStorage
@@ -81,8 +82,9 @@ import imgUploadParam from "~/types/uploadImg";
 import _ from "lodash";
 import MarkdownEditor from "~/components/markdown.vue";
 import Bus from '~/assets/utils/utils';
-import MyDraftAPI from "../../../../api/draft";
-import Draft from "../../../../types/Draft";
+import MyDraftAPI from "~/api/draft";
+import Draft from "~/types/Draft";
+import { Message } from "element-ui";
 @Component({
     components: {
         MarkdownEditor
@@ -93,6 +95,7 @@ export default class MyArticlePage extends Vue {
     type: string = "create";
     categoryOptons: string[] = [];
     timing: any;
+    imgUploading=false
     originContent="";
     coverUploadParam: imgUploadParam = new imgUploadParam("cover");
     contentUploadParam: imgUploadParam = new imgUploadParam("contentImg");
@@ -136,7 +139,7 @@ export default class MyArticlePage extends Vue {
         MyArticleAPI.findOneAPI(this.$axios, this.id).then(res => {
             if (res.success) {
                 this.formdata = res.data;
-                this.originContent = this.formdata.content;
+                this.originContent = this.formdata.content || '';
             }
         });
     }
@@ -208,11 +211,38 @@ export default class MyArticlePage extends Vue {
     resetForm(formName: string) {
         this.formdata = { ...this.formdata, ...new Article() };
     }
+
+    async getAllCategories() {
+        let res = await MyCategoryAPI.findAllAPI(this.$axios);
+        this.categoryOptons = res.data;
+    }
+    //文件上传
+    @Watch('imgUploading')
+    onImgUploadingChange(value){
+        value && this.$message({message:'正在上传',duration:0,iconClass:"el-icon-loading"});
+        !value && (Message as any).closeAll()
+    }
+    handleCoverSuccess(res: any) {
+        this.imgUploading=false
+        this.$set(this.formdata, "cover", res.filePath);
+    }
+    onProgress(event:Event,file: File, fileList: File[]) {
+        this.imgUploading=true
+    }
+    onError(err: Error, file: File, fileList: File[]) {
+        this.imgUploading=false
+        this.$message.error("上传失败");
+    }
+    //end 文件上传
+
+    //markdon编辑器相关
     uploadImg(files: File[]){
         if(this.id){
             this.contentUploadParam.id = this.id
         }
+        this.imgUploading = true
         let res =  MyArticleAPI.uploadImg(MyArticleAPI.imgUploadURL,this.$axios,files[0],this.contentUploadParam).then(res=>{
+            this.imgUploading = false
             if(res.success){
                 this.$message.success('上传成功')
                 let editor = _.get(this,'$refs.markdown.contentEditor')
@@ -224,16 +254,6 @@ export default class MyArticlePage extends Vue {
             }else this.$message.error('上传失败')
         })
     }
-    async getAllCategories() {
-        let res = await MyCategoryAPI.findAllAPI(this.$axios);
-        this.categoryOptons = res.data;
-    }
-    handleCoverSuccess(res: any) {
-        this.$set(this.formdata, "cover", res.filePath);
-    }
-    onError(err: Error, file: File, fileList: File[]) {
-        this.$message.error("上传失败");
-    }
     flush(){
         let editor = _.get(this,'$refs.markdown.contentEditor')
         if(!editor){
@@ -242,6 +262,8 @@ export default class MyArticlePage extends Vue {
         this.formdata.content = editor.getValue()
         return true
     }
+    //end markdon编辑器相关
+    
     save(){
         this.saving = true;
         (this.$refs[this.formName] as ElForm).validate(valid => {

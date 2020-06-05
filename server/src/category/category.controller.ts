@@ -33,7 +33,7 @@ export default class CategoryController {
         }
     
         @Get('total')
-        @Auth("获取文章数量")
+        @Auth("获取分类数量")
         async total() {
             return await this.CategoryService.getTotalNumber();
         }

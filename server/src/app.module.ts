@@ -13,12 +13,13 @@ import { level } from 'winston';
 import { NoteModule } from './note/note.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './lib/filter/excenption.filter';
+import { ImgModule } from 'src/imgs/img.module';
 var winston = require('winston');
 require('winston-daily-rotate-file');
 const rotate_info_transport = new (winston.transports.DailyRotateFile)({
     filename: `${process.env.INFO_DIR}/%DATE%.log` || 'log/info/%DATE%.log',
     datePattern: 'YYYY-MM-DD',
-    zippedArchive: true,
+    zippedArchive: false,
     maxSize: '20m',
     maxFiles: '14d',
     level:'info'
@@ -26,7 +27,7 @@ const rotate_info_transport = new (winston.transports.DailyRotateFile)({
 const rotate_error_transport = new (winston.transports.DailyRotateFile)({
     filename: `${process.env.ERROR_DIR}/%DATE%.log` || 'log/error/%DATE%.log',
     datePattern: 'YYYY-MM-DD',
-    zippedArchive: true,
+    zippedArchive: false,
     maxSize: '20m',
     maxFiles: '14d',
     level:'error'
@@ -72,7 +73,8 @@ let exceptionFilterProvider = {
         UserModule,
         CategoryModule,
         SystemModule,
-        NoteModule
+        NoteModule,
+        ImgModule
   ],
   controllers: [AppController],
     providers: [AppService,exceptionFilterProvider]

@@ -2,9 +2,9 @@ import {AxiosResponse} from 'axios'
 import { NuxtAxiosInstance } from '@nuxtjs/axios'
 import { generateResponse } from './common';
 import imgUploadParam from '~/types/uploadImg';
-export class MyResponse { 
+export class MyResponse<T = any> { 
     success: boolean = true
-    data: any
+    data: T
     constructor() { 
         this.success = true
     }

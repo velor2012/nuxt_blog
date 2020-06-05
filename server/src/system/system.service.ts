@@ -44,7 +44,7 @@ export class SystemService {
         let results = []
         // 遍历当前目录中所有的文件
         items.map(item => {
-            if (/(.*)?.json/.test(item)) return;
+            if (!/^(.*)?.log$/.test(item)) return;
             results.push({fileName:item })
         });
         return results;

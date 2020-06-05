@@ -68,7 +68,7 @@ export default class UserService {
     }
     
     async upload(file: any, type: imgType,user:DocumentType<User>, id?: string) {
-        let res = await this.ImgUploadService.upload(file, new imgUploadParam(type, id));
+        let res = await this.ImgUploadService.upload(file, new imgUploadParam(type, id),'users');
         if (res.originName) { 
             this.logger.log(`上传图片 操作者:id=${user._id} realname=${user.realname}, 文件名:${res.originName}`)
         }

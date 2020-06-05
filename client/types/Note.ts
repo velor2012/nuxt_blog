@@ -21,5 +21,6 @@ export class SubDoc{
 
     public content: string = ''
 
+    visits?:number
   }
   

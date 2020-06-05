@@ -37,6 +37,7 @@
                             :show-file-list="false"
                             :on-success="handleCoverSuccess"
                             :on-error="onError"
+                            :on-progress="onProgress"
                             :headers="{
                                         Authorization:localStorage
                                     }"
@@ -62,7 +63,7 @@
                 <el-table :data="formdata.subDoc">
                     <el-table-column sortable prop="order" label="次序"/>
                     <el-table-column prop="title" label="标题"/>
-                    <el-table-column prop="content" label="内容" class="text-ellipsis"/>
+                    <el-table-column prop="content" label="内容" show-overflow-tooltip/>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
                             <el-button size="mini" @click="onClickEdit(scope.$index, scope.row)">编辑</el-button>
@@ -111,6 +112,7 @@ import { baseUrl, getToken } from "~/assets/utils/utils";
 import imgUploadParam from "~/types/uploadImg";
 import SubDocForm from "~/components/subDocForm.vue";
 import Bus from '~/assets/utils/utils';
+import { Message } from "element-ui";
 @Component({
     components: {
         SubDocForm
@@ -126,6 +128,7 @@ export default class MyNotePage extends Vue {
     formName: string = "ruleForm";
     baseUrl: string = baseUrl;
     imgUploadURL = MyNoteAPI.imgUploadURL;
+    imgUploading=false
     coverUploadParam: imgUploadParam = new imgUploadParam("cover");
     localStorage: string = "";
     subDocEditing = false;
@@ -135,7 +138,7 @@ export default class MyNotePage extends Vue {
             { required: true, trigger: "blur" },
             { validator: this.validateCategories, trigger: "blur" }
         ],
-        name: [{ required: true, trigger: "blur" }],
+        name: [{ required: true, trigger: "blur" }],//笔记名要唯一     //TODO;
         resume: [{ required: true, trigger: "blur" }],
         cover: [{ required: true, trigger: "blur" }]
     };
@@ -158,6 +161,7 @@ export default class MyNotePage extends Vue {
         }
        this.formdata.subDoc.push({...subDocComponent.formdata})
        subDocComponent._clear()
+       subDocComponent.initExitOrders()
     }
     created(){
         this.addBusEvent()
@@ -238,12 +242,27 @@ export default class MyNotePage extends Vue {
         let res = await MyCategoryAPI.findAllAPI(this.$axios);
         this.categoryOptons = res.data;
     }
+
+    //文件上传
+    @Watch('imgUploading')
+    onImgUploadingChange(value){
+        value && this.$message({message:'正在上传',duration:0,iconClass:"el-icon-loading"});
+        !value && (Message as any).closeAll()
+    }
+    onProgress(event:Event,file: File, fileList: File[]) {
+        this.imgUploading=true
+    }
     handleCoverSuccess(res: any) {
+        this.imgUploading=false
         this.$set(this.formdata, "cover", res.filePath);
     }
     onError(err: Error, file: File, fileList: File[]) {
+        this.imgUploading=false
         this.$message.error("上传失败");
     }
+    //end 文件上传
+
+    //子文档相关
     onClickEdit(idx, subDoc){
         let subDocComponent = _.get(this,'$refs.subDoc')
         subDocComponent && subDocComponent._clear()
@@ -265,6 +284,8 @@ export default class MyNotePage extends Vue {
     onClickDelete(idx,id){
         this.formdata.subDoc.splice(idx,1)
     }
+   //end 子文档相关
+
     addBusEvent(){
         Bus.$on(`save_${this.page}`,this.save)
     }
