@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-tabs type="border-card">
+        <el-tabs v-loading="loading" type="border-card">
             <el-tab-pane label="基本信息">
                 <el-form
                     :model="formdata"
@@ -96,6 +96,7 @@ import Bus from "~/assets/utils/utils";
 export default class MyUserPage extends Vue {
     page = "user";
     originContent = "";
+    loading=false
     type: string = "create";
     avatarUploadUrl: string = MyUserAPI.imgUploadUrl;
     timing: any;
@@ -193,10 +194,12 @@ export default class MyUserPage extends Vue {
     }
     mounted() {
         this.id = _.get(this, "$route.params.id");
+        this.loading=true
         if (!_.isEmpty(this.id)) {
             this.showChangePasswordButton = false;
             this.type = "edit";
             MyUserAPI.findOneAPI(this.$axios, this.id).then(res => {
+                this.loading=false
                 if (res.success) {
                     this.formdata = res.data;
                     this.originContent = this.formdata.info;

@@ -2,7 +2,9 @@
     <div class="list">
         <el-input v-model="keyword" placeholder="请输入内容" @input="onKeywordChage" 
         suffix-icon="el-icon-search" :width="10" class=" my-2"></el-input>
-        <el-table :data="tableData" style="width: 100%">
+        <el-table 
+        v-loading="loading"
+        :data="tableData" style="width: 100%">
             <el-table-column prop="title" label="标题" >
             <template slot-scope="scope">
                 <div v-html="scope.row.title"/>
@@ -53,6 +55,7 @@ export default class ArticleListPage extends Vue {
     totalData = 1;
     pageSize = 2;
     keyword =''
+    loading=false
     tableData: Article[] = [];
     handleEdit(idx, id) {
         this.$router.push(MyPagePath.articlePages.getEditPath(id));
@@ -85,14 +88,17 @@ export default class ArticleListPage extends Vue {
     })
     }
     getData(page: number) {
+        this.loading = true
         if(_.isEmpty(this.keyword)){
             MyArticleAPI.findAllAPI(this.$axios, this.pageSize, page).then(res => {
+                this.loading = false
                 if (res.success) {
                     this.tableData = res.data;
                 }
             });
         }else{
             MyArticleAPI.searchAPI(this.$axios,this.keyword,this.pageSize,page).then(res=>{
+                this.loading = false
                 if(res.success){
                     this.totalData = res.data.total
                     this.tableData = res.data.results.map(v=>{

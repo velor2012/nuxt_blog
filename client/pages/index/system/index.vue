@@ -1,5 +1,5 @@
 <template>
-    <div class="system-info" v-if="systemInfo">
+    <div id="systemInfo" class="system-info" v-if="systemInfo">
         <el-row type="flex" justify="space-around">
             <el-col :span="7">
                 <el-card>
@@ -87,6 +87,7 @@
 import { Component, Vue } from "nuxt-property-decorator";
 import SystemInfo from "../../../types/SystemInfo";
 import MySystemAPI from "../../../api/system";
+import { Loading } from "element-ui";
 @Component({
     components: {}
 })
@@ -94,8 +95,13 @@ export default class extends Vue {
     systemInfo: SystemInfo = null;
     isRunning = false;
     async mounted() {
+        let loadingInstance = Loading.service({});
+        debugger
         let res = await MySystemAPI.getSystemInfo(this.$axios);
         if (res.success) {
+            this.$nextTick(() => { // 以服务的方式调用的 Loading 需要异步关闭
+                loadingInstance.close();
+            });
             this.$set(this, "systemInfo", res.data);
             this.isRunning = Boolean(this.systemInfo.hostname);
         }

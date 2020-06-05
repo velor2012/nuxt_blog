@@ -1,6 +1,8 @@
 <template>
     <div>
-        <el-table :data="tableData" style="width: 100%">
+        <el-table
+                v-loading="loading"
+         :data="tableData" style="width: 100%">
             <el-table-column prop="title" label="标题" />
             <el-table-column label="类型">
                 <template slot-scope="scope">
@@ -40,6 +42,7 @@ export default class DraftListPage extends Vue {
     pageName = "draft_list";
     totalData = 1;
     pageSize = 10;
+    loading=false
     tableData: Draft[] = [];
     handleEdit(idx, id) {
         this.$router.push(MyPagePath.draftPages.getEditPath(id));
@@ -63,8 +66,10 @@ export default class DraftListPage extends Vue {
         this.getData(1);
     }
     getData(page: number) {
+        this.loading = true
         this.getTotalNumber()
         MyDraftAPI.findAllAPI(this.$axios, this.pageSize, page).then(res => {
+            this.loading = false
             if (res.success) {
                 this.tableData = res.data;
             }

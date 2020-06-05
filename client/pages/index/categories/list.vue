@@ -1,6 +1,8 @@
 <template>
     <div>
-        <el-table :data="tableData" style="width: 100%">
+        <el-table
+        v-loading="loading"
+         :data="tableData" style="width: 100%">
             <el-table-column prop="_id" label="分类id" />
             <el-table-column prop="name" label="分类名称" />
             <el-table-column label="操作">
@@ -35,6 +37,7 @@ export default class CategoryListPage extends Vue {
     pageName = "category_list";
     totalData = 1;
     pageSize = 1;
+    loading=false
     tableData: Category[] = [];
     handleEdit(idx, id) {
         this.$router.push(MyPagePath.categoryPages.getEditPath(id));
@@ -58,12 +61,14 @@ export default class CategoryListPage extends Vue {
         this.getData(1);
     }
     getData(page: number) {
+        this.loading=true
         MyCategoryAPI.getTotalNumberAPI(this.$axios).then(res => {
             if (res.success) {
                 this.totalData = res.data;
             }
         });
         MyCategoryAPI.findAllAPI(this.$axios, this.pageSize, page).then(res => {
+            this.loading=false
             if (res.success) {
                 this.tableData = res.data;
             }

@@ -1,6 +1,8 @@
 <template>
     <div>
-        <el-tabs type="border-card">
+        <el-tabs
+        v-loading="loading"
+         type="border-card">
             <el-tab-pane label="基本信息">
                 <el-form
                     :model="formdata"
@@ -94,7 +96,7 @@ export default class MyArticlePage extends Vue {
     page="article"
     type: string = "create";
     categoryOptons: string[] = [];
-    timing: any;
+    loading = false
     imgUploading=false
     originContent="";
     coverUploadParam: imgUploadParam = new imgUploadParam("cover");
@@ -136,7 +138,9 @@ export default class MyArticlePage extends Vue {
         this.addBusEvent()
     }
     getOneArticle() {
+        this.loading = true
         MyArticleAPI.findOneAPI(this.$axios, this.id).then(res => {
+            this.loading = false
             if (res.success) {
                 this.formdata = res.data;
                 this.originContent = this.formdata.content || '';

@@ -52,6 +52,7 @@ export default class MarkdownEditor extends Vue {
                 outline:true,
                 minHeight: 500,
             })
+            this.contentEditor.setTheme('classic','light','xcode')
             this.flushOriginContent()
             this.doneInit=true
         })

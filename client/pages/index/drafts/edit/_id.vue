@@ -1,6 +1,8 @@
 <template>
     <div>
-        <el-tabs type="border-card">
+        <el-tabs
+        v-loading="loading"
+         type="border-card">
             <el-tab-pane label="基本信息">
                 <el-form
                     :model="formdata"
@@ -91,7 +93,7 @@ export default class MyDraftPage extends Vue {
     page='draft'
     type: string = "edit";
     categoryOptons: string[] = [];
-    timing: any;
+    loading=true
     originContent: string = "";
     coverUploadParam: imgUploadParam = new imgUploadParam("cover");
     contentUploadParam: imgUploadParam = new imgUploadParam("contentImg");
@@ -127,7 +129,9 @@ export default class MyDraftPage extends Vue {
     }
 
     getOneDraft() {
+        this.loading = true
         MyDraftAPI.findOneAPI(this.$axios, this.id).then(res => {
+            this.loading = false
             if (res.success) {
                 this.formdata = res.data;
                 this.originContent = this.formdata.content || '';
@@ -233,7 +237,6 @@ export default class MyDraftPage extends Vue {
      //end markdon编辑器相关
 
     beforeRouteLeave(to, from, next) {
-        clearInterval(this.timing);
         next();
     }
     save(){

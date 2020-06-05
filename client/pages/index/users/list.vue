@@ -64,6 +64,7 @@ export default class extends Vue {
         MyUserAPI.getTotalNumberAPI(this.$axios).then(res => {
             if (res.success) {
                 this.totalData = res.data;
+                this.loading = false;
             }
         });
         MyUserAPI.findAllAPI(this.$axios, this.pageSize, page).then(res => {

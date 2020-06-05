@@ -8,7 +8,8 @@
     :ref="formName"
     label-width="100px"
     class="demo-ruleForm"
-    label-position="left" 
+    label-position="left"
+    v-loading="loading"
   >
     <el-form-item label="分类名称" prop="name">
       <el-input type="input" v-model="formdata.name" autocomplete="off"></el-input>
@@ -40,6 +41,7 @@ import MyPagePath from '~/types/path';
 export default class MyCategoryPage extends Vue {
 type:string="create";
 typeOptions = config.types
+loading=false
   id: string = "";
   formdata: Category = new Category();
     formName: string = "category_form";
@@ -57,7 +59,9 @@ typeOptions = config.types
   }
 
   getOneCategory(){
+      this.loading = true
     MyCategoryAPI.findOneAPI(this.$axios, this.id).then(res => {
+        this.loading = false
         if (res.success) {
           this.formdata = res.data;
         }

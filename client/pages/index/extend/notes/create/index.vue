@@ -1,6 +1,8 @@
 <template>
     <div>
-        <el-tabs type="border-card">
+        <el-tabs
+        v-loading="loading"
+         type="border-card">
             <el-tab-pane label="基本信息">
                 <el-form
                     :model="formdata"
@@ -124,6 +126,7 @@ export default class MyNotePage extends Vue {
     page="note"
     categoryOptons: string[] = [];
     id: string = "";
+    loading=false
     formdata: Note = new Note();
     formName: string = "ruleForm";
     baseUrl: string = baseUrl;
@@ -186,7 +189,9 @@ export default class MyNotePage extends Vue {
     }
 
     getOneNote() {
+        this.loading = true
         MyNoteAPI.findOneAPI(this.$axios, this.id).then(res => {
+            this.loading = false
             if (res.success) {
                 this.formdata = res.data;
             }

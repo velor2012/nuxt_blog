@@ -21,7 +21,9 @@
                     <el-button @click="switchSelcetType" class="card-header">切换选择方式</el-button>
                     <el-button @click="switchSelectlLogType" class="card-header">切换日志类型</el-button>
                 </div>
-                <el-table :data="tableData" v-show="selectType == 'table'">
+                <el-table
+                v-loading="loading"
+                :data="tableData" v-show="selectType == 'table'">
                     <el-table-column prop="fileName" label="文件名"></el-table-column>
                     <el-table-column fixed="right" label="操作">
                         <template slot-scope="scope">
@@ -58,8 +60,11 @@ export default class LogPage extends Vue {
     selectType: selectComponentType = "table";
     selectlLogType: logType = "info";
     log: string = "";
+    loading=false
     async mounted() {
+        this.loading=true
         let res = await MySystemAPI.getLogs(this.$axios, "info");
+        this.loading=false
         if (res.success) {
             this.tableData = res.data;
         }
