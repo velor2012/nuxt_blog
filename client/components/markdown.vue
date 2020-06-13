@@ -88,11 +88,11 @@ export default class MarkdownEditor extends Vue {
     save(){
         Bus.$emit(`save_${this.page}`)
     }
-    beforeRouteLeave(to, from, next) {
+        //在vue对象的beforeDestroy钩子中调用以上函数
+    beforeDestroy() {
         if(this.hideMenu){
             this.showHeaderAndSide()
         }
-        next();
     }
     uploadImg(files: File[]){
         Bus.$emit(`uploadImg_${this.page}`,files);

@@ -12,6 +12,7 @@ import { User as CUser } from 'src/lib/decorator/user.decorator'
 import User from 'src/user/user.model';
 import NoteService from './note.service';
 import SearchDTO from 'src/lib/dto/search.dto';
+import { str2bool } from 'src/lib/common/util';
 
 @ApiTags("笔记")
 @Injectable()
@@ -24,10 +25,11 @@ export default class NoteController {
     @Get()
     @Auth("获取所有笔记")
     async index(@Query() query: QueryDTO) {
-        let { page, pageSize, sortBy,where } = query;
+        let { page, pageSize, sortBy, where, needTotal } = query;
+        let _needTotal = str2bool(needTotal)
         let sb = {};
         sb['oder'] = 1;
-        return await this.NoteService.getAllNotes(pageSize,page,sb,where)
+        return await this.NoteService.getAllNotes(pageSize,page,sb,where,_needTotal)
     }
 
     @Get('searchSubDoc/:keyword')
@@ -48,6 +50,12 @@ export default class NoteController {
     @Auth("获取笔记数量")
     async total() {
         return await this.NoteService.getTotalNumber();
+    }
+        
+    @Get('group')
+    @Auth("获取每种笔记数目")
+    async group() {
+        return await this.NoteService.group();
     }
 
     @Post()

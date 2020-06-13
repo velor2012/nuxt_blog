@@ -118,18 +118,10 @@ export default class extends Vue {
         });
     }
     removeBusEvent(){
-        Bus.$off("hideHeader", () => {
-            this.showHeader = false;
-        });
-        Bus.$off("showHeader", () => {
-            this.showHeader = true;
-        });
-        Bus.$off("hideSide", () => {
-            this.showSide = false;
-        });
-        Bus.$off("showSide", () => {
-            this.showSide = true;
-        });
+        Bus.$off("hideHeader");
+        Bus.$off("showHeader");
+        Bus.$off("hideSide");
+        Bus.$off("showSide");
     }
     //在vue对象的beforeDestroy钩子中调用以上函数
     beforeDestroy() {

@@ -12,6 +12,8 @@ import imgUploadParam from '../lib/types/imgParam';
 import { User as CUser } from 'src/lib/decorator/user.decorator'
 import User from 'src/user/user.model';
 import SearchDTO from '../lib/dto/search.dto';
+import * as _ from 'lodash';
+import { str2bool } from '../lib/common/util';
 
 @ApiTags("文章")
 @Injectable()
@@ -24,16 +26,23 @@ export default class ArticleController {
     @Get()
     @Auth("获取所有文章")
     async index(@Query() query: QueryDTO) {
-        let { page, pageSize, sortBy,where } = query;
+        let { page, pageSize, sortBy, where, needTotal } = query;
+        let _needTotal = str2bool(needTotal)
         let sb = {};
         sb[sortBy] = -1;
-        return await this.ArticleService.getAllArticles(pageSize,page,sb,where)
+        return await this.ArticleService.getAllArticles(pageSize,page,sb,where,_needTotal)
     }
     @Get('search')
     @Auth("查询")
     async search(@Query() query: SearchDTO) {
         let { keyword, pageSize, page } = query 
         return await this.ArticleService.search(keyword,pageSize,page);
+    }
+        
+    @Get('group')
+    @Auth("获取每种文章数目")
+    async group() {
+        return await this.ArticleService.group();
     }
 
     @Get('total')

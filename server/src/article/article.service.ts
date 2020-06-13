@@ -1,7 +1,7 @@
 import { Injectable, Inject, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from "nestjs-typegoose";
 import { ReturnModelType } from "@typegoose/typegoose";
-import Article from "./article.model";
+import Article from './article.model';
 import { ImgUploadService } from '../lib/common/uploadImg.service';
 import imgUploadParam, { imgType } from "src/lib/types/imgParam";
 import { CacheService } from "src/lib/cache/cache.service";
@@ -21,14 +21,14 @@ export default class ArticleService {
         private readonly CacheService: CacheService,
         private readonly ESService: ESService,
     ) { }
-    async getAllArticles(pageSize: number, page: number, sortBy: object, where: string) {
+    async getAllArticles(pageSize: number, page: number, sortBy: object, where: string,needTotal:boolean) {
         //获取sortby的key
         let sortby_keys = []
         for (let sortby_key in sortBy) { 
             sortby_keys.push(sortby_key)
         }
 
-        let option = `${pageSize}_${page}_${sortby_keys}_${where}`
+        let option = `${pageSize}_${page}_${sortby_keys}_${where}_${needTotal}`.replace(':',"_")
         let key = `article_findall_${option}`
         let cache_articles = await this.CacheService.get(key)
         if (cache_articles) {
@@ -39,11 +39,18 @@ export default class ArticleService {
             let obj_where = where?JSON.parse(where):undefined
             if (_.isEmpty(obj_where)) { obj_where = {} }
 
-            let res = await this.ArticleModel.find(obj_where,{ content: 0 })
+            let res:any = await this.ArticleModel.find(obj_where,{ content: 0 })
             .populate('categories','name')
             .limit(pageSize)
             .skip(pageSize * (page - 1))
-            .sort(sortBy);
+                .sort(sortBy);
+            
+            //返回满足要求的文章总数
+            let total = null
+            if (needTotal) { 
+                total = await this.ArticleModel.find(obj_where, { _id: 1 }).countDocuments()
+                res = {total:total,data:res}
+            }
             res && this.CacheService.set(key, res).then(res => { this.findAllCacheItems.push(key) })
             return res
         }
@@ -56,6 +63,33 @@ export default class ArticleService {
         } else { 
             let res = await this.ArticleModel.countDocuments()
             res && this.CacheService.set('article_total', res)
+            return res
+        }
+    }
+
+    async group() { 
+        let cache_group = await this.CacheService.get('article_group')
+        if (cache_group) {
+            return cache_group
+        } else { 
+            let res = await this.ArticleModel.aggregate([
+                {
+                    "$lookup": {
+                        "from": "categories",
+                        "localField": "categories",
+                        "foreignField": "_id",
+                        "as": "categories"
+                      }
+                },
+                {"$unwind":'$categories'},
+                {
+                    "$group":{
+                        _id: "$categories",
+                        count: { $sum: 1 }
+                      }
+                }
+            ])
+            res && this.CacheService.set('article_group', res)
             return res
         }
     }

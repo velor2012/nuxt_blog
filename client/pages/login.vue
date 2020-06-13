@@ -1,6 +1,6 @@
 <template>
-<div>
-    <el-card header="登录" class = "login-card">
+<div class="login-page d-flex jc-center ai-center">
+    <el-card header="登录" class = " login-card">
         <el-form 
         :model="user"
         @submit.native.prevent="login"
@@ -14,7 +14,7 @@
             </el-form-item>
             <el-form-item style="textAlign:center">
                 <el-row type="flex" justify="center">
-                    <el-button native-type="submit" type="primary">登录</el-button>
+                    <el-button native-type="submit" plain type="info">登录</el-button>
                 </el-row>
             </el-form-item>
         </el-form>
@@ -56,9 +56,21 @@ export default class extends Vue {
     }
 }
 </script>
-<style>
+<style lang="scss">
+@import "assets/scss/_variable.scss";
 .login-card{
-    width: 30vw;
-    margin: 30vh auto;
+    width: 25vw;
+    color: white;
+    font-weight: bold;
+    background-color:rgba($color: #000, $alpha: 0.5);
+    border-color: rgba($color: #000, $alpha: 0.5);
+    .el-form-item__label{
+        color:white
+    }
+}
+.login-page{
+    height: 100vh;
+    background: #000000 url($background) top left no-repeat;
+    background-size: cover;
 }
 </style>

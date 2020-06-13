@@ -6,8 +6,11 @@ import {
     IsNotEmpty,
     IsJSON,
     IsOptional,
+    IsBoolean,
+    IsBooleanString,
 } from "class-validator";
 import { Type } from "class-transformer";
+import { isBoolean } from "util";
 
 export default class QueryDTO {
     @ApiProperty({
@@ -43,6 +46,15 @@ export default class QueryDTO {
         description: "查询条件",
         example: '{"id":"xxxx"}',
     })
+    @IsOptional()
     @IsJSON()
     where: string = "{}";
+
+    @ApiProperty({
+        required: false,
+        description: "是否返回总数",
+        example: 'false',
+    })
+    @IsBooleanString()
+    needTotal:string='false'
 }

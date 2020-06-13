@@ -83,7 +83,7 @@ export default class ImgService {
         let res = await this.ImgModel.findByIdAndDelete(id)
         if (res) { 
             this.invalidateFindall()
-            this.CacheService.invalidate(`img_${res._id}`)
+            this.CacheService.invalidate(`img_${id}`)
             this.logger.log(`删除图片 用户:id=${user._id} realname=${user.realname}, id=${id}`)
         }
         return res

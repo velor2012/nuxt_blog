@@ -61,7 +61,7 @@ export default class UserController {
     }
 
     @Get(":id")
-    @Auth("获取管理员详情",['admin'],"jwt")
+    @Auth("获取管理员详情")
     async detail(@Param("id") id: string, @Req() req) {
         if (!req) return "";
         return await this.UserService.detail(id);

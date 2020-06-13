@@ -118,8 +118,11 @@ export default class EmojiPage extends Vue {
     async _delete(emoji:MyImg){
         let res = await MyImgAPI.deleteAPI(this.$axios,emoji._id)
         if(res.success){
-            this.getTotalNumber()
-            this.getData(1)
+            this.$message.success('删除成功')
+            setTimeout(()=>{
+                this.getTotalNumber()
+                this.getData(1)
+            },500)
         }
     }
 }

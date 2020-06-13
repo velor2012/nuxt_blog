@@ -21,14 +21,14 @@ export default class NoteService {
         private readonly CacheService: CacheService,
         private readonly ESService: ESService,
     ) { }
-    async getAllNotes(pageSize: number, page: number, sortBy: object, where: string) {
+    async getAllNotes(pageSize: number, page: number, sortBy: object, where: string,needTotal:boolean) {
         //获取sortby的key
         let sortby_keys = []
         for (let sortby_key in sortBy) { 
             sortby_keys.push(sortby_key)
         }
 
-        let option = `${pageSize}_${page}_${sortby_keys}_${where}`
+        let option = `${pageSize}_${page}_${sortby_keys}_${where}_${needTotal}`.replace(':',"_")
         let key = `note_findall_${option}`
         let cache_notes = await this.CacheService.get(key)
         if (cache_notes) {
@@ -39,11 +39,17 @@ export default class NoteService {
             let obj_where = where?JSON.parse(where):undefined
             if (_.isEmpty(obj_where)) { obj_where = {} }
 
-            let res = await this.NoteModel.find(obj_where,{subDoc:0})
+            let res:any = await this.NoteModel.find(obj_where,{subDoc:0})
             .populate('categories','name')
             .limit(pageSize)
             .skip(pageSize * (page - 1))
-            .sort(sortBy);
+                .sort(sortBy);
+            //返回满足要求的文章总数
+            let total = null
+            if (needTotal) { 
+                total = await this.NoteModel.find(obj_where, { _id: 1 }).countDocuments()
+                res = {total:total,data:res}
+            }
             res && this.CacheService.set(key, res).then(res => { this.findAllCacheItems.push(key) })
             return res
         }
@@ -107,6 +113,33 @@ export default class NoteService {
         } else { 
             let res = await this.NoteModel.countDocuments()
             res && this.CacheService.set('note_total', res)
+            return res
+        }
+    }
+
+    async group() { 
+        let cache_group = await this.CacheService.get('note_group')
+        if (cache_group) {
+            return cache_group
+        } else { 
+            let res = await this.NoteModel.aggregate([
+                {
+                    "$lookup": {
+                        "from": "categories",
+                        "localField": "categories",
+                        "foreignField": "_id",
+                        "as": "categories"
+                      }
+                },
+                {"$unwind":'$categories'},
+                {
+                    "$group":{
+                        _id: "$categories",
+                        count: { $sum: 1 }
+                      }
+                }
+            ])
+            res && this.CacheService.set('note_group', res)
             return res
         }
     }
