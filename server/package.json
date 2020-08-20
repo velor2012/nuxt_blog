@@ -32,7 +32,7 @@
     "@nestjs/swagger": "^4.5.3",
     "@types/elasticsearch": "^5.0.36",
     "@types/request": "^2.48.5",
-    "bcrypt": "^4.0.1",
+    "bcrypt": "^5.0.0",
     "cache-manager": "^3.3.0",
     "class-transformer": "^0.2.3",
     "class-validator": "^0.12.1",
