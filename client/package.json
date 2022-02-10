@@ -19,7 +19,7 @@
     "dayjs": "^1.8.27",
     "element-ui": "^2.4.11",
     "lodash": "^4.17.15",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "nuxt": "^2.0.0",
     "nuxt-property-decorator": "^2.7.2",
     "sass": "^1.26.5",
